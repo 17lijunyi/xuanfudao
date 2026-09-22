@@ -1,0 +1,11 @@
+{
+  "description": "浮岛：只转发本机任务身份以及运行、等待授权、等待输入、停止和中断状态，不保存提示词、回答或聊天记录。此文件为审阅工件，尚未启用。",
+  "hooks": {
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "/usr/local/bin/node '/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js'", "timeout": 2 }] }],
+    "PreToolUse": [{ "matcher": ".*", "hooks": [{ "type": "command", "command": "/usr/local/bin/node '/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js'", "timeout": 2 }] }],
+    "PermissionRequest": [{ "matcher": ".*", "hooks": [{ "type": "command", "command": "/usr/local/bin/node '/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js'", "timeout": 2 }] }],
+    "PostToolUse": [{ "matcher": "^request_user_input$", "hooks": [{ "type": "command", "command": "/usr/local/bin/node '/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js'", "timeout": 2 }] }],
+    "Stop": [{ "hooks": [{ "type": "command", "command": "/usr/local/bin/node '/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js'", "timeout": 2 }] }],
+    "Interrupt": [{ "hooks": [{ "type": "command", "command": "/usr/local/bin/node '/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js'", "timeout": 2 }] }]
+  }
+}

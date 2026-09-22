@@ -1,0 +1,136 @@
+{
+  "name": "to-do-panel",
+  "version": "1.5.1",
+  "description": "悬浮岛 - a local workspace that lives under the Mac notch",
+  "main": "main.js",
+  "author": "17lijunyi",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.js && env -u ELECTRON_RUN_AS_NODE electron tests/notch-focus.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/quick-island.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/text-input.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/quick-launch.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/ai-tools.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/island-entry.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/window-collapse.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/window-size.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/ux-controls.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/compact-workspace.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/computer-status.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/project-drawer.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/status-island.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/codex-notch.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/notification.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/credential-startup.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/appearance.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/appearance-native.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/glass-window-lifecycle.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/window-handoff.electron.js && env -u ELECTRON_RUN_AS_NODE electron tests/card-reflow.electron.js && node --check renderer/card-reflow.js && node --check renderer/appearance.js && node --check renderer/appearance-surface.js && node --check renderer/window-motion.js && node --check island-activities.js && node --check island-status-window.js && node --check renderer/status-island.js && node --check main.js && node --check main-services.js && node --check codex-float.js && node --check island-system.js && node --check renderer/quick-island.js && node --check renderer/codex-float.js && node --check preload.js && node --check renderer/domain.js && node --check renderer/effects.js && node --check renderer/app.js && node --check renderer/workspace.js && node --check renderer/icon-motion.js && node --check renderer/notification.js && node --check build/afterPack.js && node --check build/signing-policy.js && node --check build/notarize.js && node --check scripts/codex-notify.js && node --check scripts/claude-notify.js",
+    "start": "electron .",
+    "build": "electron-builder --mac dmg --publish never",
+    "build:distribution": "FUDAO_NOTARIZE_REQUIRED=1 electron-builder --mac dmg --publish never --config.mac.identity=null",
+    "build:zip": "electron-builder --mac zip",
+    "pack": "electron-builder --dir",
+    "prestart": "node scripts/build-system-helper.js && node scripts/build-appearance-glass.js"
+  },
+  "devDependencies": {
+    "@electron/notarize": "^2.5.0",
+    "electron": "^44.0.0",
+    "electron-builder": "^26.15.7"
+  },
+  "build": {
+    "appId": "com.dynamicpanel.app",
+    "productName": "悬浮岛",
+    "artifactName": "FuDao-${version}-${arch}.${ext}",
+    "copyright": "© 2026 xiaopu-ai",
+    "asar": false,
+    "directories": {
+      "output": "dist.noindex",
+      "buildResources": "build"
+    },
+    "electronDist": "node_modules/electron/dist",
+    "afterPack": "./build/afterPack.js",
+    "files": [
+      "main.js",
+      "main-services.js",
+      "ai-tools.js",
+      "quick-launch.js",
+      "project-drawer.js",
+      "project-drawer-electron.js",
+      "codex-float.js",
+      "island-system.js",
+      "island-activities.js",
+      "island-status-window.js",
+      "preload.js",
+      "renderer/**/*",
+      "scripts/codex-notify.js",
+      "scripts/claude-notify.js",
+      "package.json",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/.bin",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "THIRD_PARTY_NOTICES.md",
+      "computer-status.js",
+      "weather-service.js",
+      "codex-task-state.js",
+      "codex-lifecycle-http.js",
+      "scripts/fudao-codex-hook.js",
+      "codex-process.js",
+      "ai-code-runtime.js",
+      "ai-code-connectors.js",
+      "code-provider-specs.js",
+      "code-tool-paths.js",
+      "ai-code-plugin.js",
+      "scripts/ai-code-hook.js",
+      "codex-activity-cache.js",
+      "appearance-settings.js",
+      "window-size-settings.js",
+      "appearance-native.js",
+      "window-handoff.js",
+      "system-ui-guard.js",
+      "appearance-surface.js"
+    ],
+    "mac": {
+      "icon": "build/to-do-panel-icon.icns",
+      "category": "public.app-category.productivity",
+      "minimumSystemVersion": "13.0",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "darkModeSupport": true,
+      "extendInfo": {
+        "LSUIElement": true,
+        "NSHighResolutionCapable": true,
+        "CFBundleName": "工作台",
+        "CFBundleDisplayName": "悬浮岛",
+        "NSCameraUsageDescription": "悬浮岛需要使用摄像头来显示「镜子」预览。",
+        "NSMicrophoneUsageDescription": "悬浮岛需要使用麦克风来录音并生成转写文本。",
+        "NSAppleEventsUsageDescription": "悬浮岛需要控制「系统事件」来聚焦当前窗口。"
+      }
+    },
+    "dmg": {
+      "title": "悬浮岛 ${version}",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    }
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "jsonc-parser": "^3.3.1",
+    "ws": "^8.21.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/17lijunyi/xuanfudao.git"
+  },
+  "homepage": "https://github.com/17lijunyi/xuanfudao",
+  "bugs": {
+    "url": "https://github.com/17lijunyi/xuanfudao/issues"
+  }
+}

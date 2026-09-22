@@ -1,0 +1,21 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const os=require('node:os');const path=require('node:path');
+const {createWindowSizeSettingsService}=require('../window-size-settings');
+test('window width persists only valid presets, serializes writes and survives failures',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'fudao-width-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const filePath=path.join(dir,'size.json');let fail=false;
+ const io={...fs,promises:{...fs.promises,rename:async(...args)=>{if(fail)throw Error('disk');return fs.promises.rename(...args);}}};
+ const service=createWindowSizeSettingsService({filePath,fs:io});
+ assert.equal(service.getSnapshot().width,1040);
+ for(const id of [null,{},'C','1040','../../other'])assert.equal((await service.setPreset(id)).ok,false);
+ const results=await Promise.all(['A','B'].map(id=>service.setPreset(id)));
+ assert.deepEqual(results.map(x=>x.snapshot.width),[1240,1040]);
+ assert.equal(createWindowSizeSettingsService({filePath}).getSnapshot().selectedId,'B');
+ fail=true;assert.equal((await service.setPreset('A')).error,'save_failed');
+ assert.equal(service.getSnapshot().width,1040);assert.equal(JSON.parse(fs.readFileSync(filePath)).selectedId,'B');
+ fail=false;await service.setPreset('A');assert.equal(createWindowSizeSettingsService({filePath}).getSnapshot().width,1240);
+ fs.writeFileSync(filePath,JSON.stringify({version:1,selectedId:'C'}));assert.equal(createWindowSizeSettingsService({filePath}).getSnapshot().selectedId,'B');
+ fs.writeFileSync(filePath,'broken');assert.equal(createWindowSizeSettingsService({filePath}).getSnapshot().width,1040);
+});

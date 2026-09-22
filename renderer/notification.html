@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>悬浮岛提醒</title>
+    <link rel="stylesheet" href="./notification.css" />
+  </head>
+  <body>
+    <main id="notification-root" class="notification-root" aria-live="polite" aria-atomic="true" hidden>
+      <span class="notification-notch" aria-hidden="true"></span>
+      <button id="notification-shell" class="notification-shell" type="button" aria-label="打开任务对应窗口">
+        <span class="notification-codex-content notification-capsule">
+          <span id="notification-tool" class="notification-tool" aria-hidden="true"></span>
+          <span class="notification-copy">
+            <span id="notification-project" class="notification-project"></span>
+            <span id="notification-source" class="notification-source"></span>
+          </span>
+        </span>
+        <span id="notification-mark" class="notification-completed-mark notification-capsule" aria-hidden="true"></span>
+      </button>
+    </main>
+    <script src="./popup-appearance.js" defer></script>
+    <script src="./notification.js" defer></script>
+  </body>
+</html>
