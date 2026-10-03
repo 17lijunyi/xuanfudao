@@ -50,7 +50,9 @@ async function main() {
     refreshTrayMenu: () => {}, syncHoverSpacePolling: () => {},
     statusIsland: { sync: async () => {}, syncForAppSurface: async () => {} },
     createQuickIslandWindow: async () => quickIslandWindow, rememberPasteTarget: async () => {},
-    isIslandSender: (event, allowQuick = true) => event.sender === mainWindow.webContents || (allowQuick && event.sender === quickIslandWindow.webContents),
+    isIslandSender: (event, allowQuick = true) =>
+      (!mainWindow.isDestroyed() && event.sender === mainWindow.webContents) ||
+      (allowQuick && !quickIslandWindow.isDestroyed() && event.sender === quickIslandWindow.webContents),
     isStatusIslandSender: () => false,
     normalizeAppearanceSurface: require(path.join(root, 'appearance-surface')).normalizeAppearanceSurface,
     normalizeWindowMotion: require(path.join(root, 'window-handoff')).normalizeWindowMotion,

@@ -1,12 +1,24 @@
+import { readFileSync } from "node:fs";
 import vinext from "vinext";
 import { defineConfig } from "vite";
-import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
 
-const { d1, r2 } = hostingConfig;
+function readHostingConfig(): { d1?: string; r2?: string } {
+  try {
+    return JSON.parse(
+      readFileSync(new URL("./.openai/hosting.json", import.meta.url), "utf8"),
+    );
+  } catch (error) {
+    // Public source checkouts do not include optional Sites hosting metadata.
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
+    throw error;
+  }
+}
+
+const { d1, r2 } = readHostingConfig();
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
@@ -47,6 +59,13 @@ export default defineConfig(async () => {
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,
+    // Vinext adds app/**/*.ts to each environment's dependency scan entries.
+    // Keep those entries while excluding declaration files from runtime scans.
+    environments: {
+      client: { optimizeDeps: { entries: ["!**/*.d.ts"] } },
+      ssr: { optimizeDeps: { entries: ["!**/*.d.ts"] } },
+      rsc: { optimizeDeps: { entries: ["!**/*.d.ts"] } },
+    },
     plugins: [
       vinext(),
       sites(),

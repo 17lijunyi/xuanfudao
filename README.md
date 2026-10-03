@@ -114,6 +114,8 @@ npm start
 
 项目采用 Electron + 原生 HTML / CSS / JavaScript，桌面渲染层无需额外构建。`npm start` 会先编译所需原生模块，再启动应用。
 
+源码版与已安装的悬浮岛共用 `~/Library/Application Support/Dynamic Panel` 数据目录和单实例锁。切换运行版本前，请先在「设置 → 本机与唤出」正常退出当前实例，再启动另一版本；直接重复启动可能只唤起已有的顶部折叠岛。首次运行源码版前建议备份该数据目录。
+
 | 命令 | 用途 |
 | --- | --- |
 | `npm start` | 启动桌面开发版 |
