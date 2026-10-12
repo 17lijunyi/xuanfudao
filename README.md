@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/showcase/ip-island-hero.png" width="100%" alt="作者的毛绒 IP 形象从柔焦玻璃悬浮岛中拉出一张完成卡片" />
+  <img src="docs/assets/showcase/ip-island-hero.png?v=c5d597721945" width="100%" alt="作者的灰白 IP 在悬浮岛玻璃胶囊上滑行，彩色任务卡片随行" />
   <h1>悬浮岛 · XuanfuDao</h1>
   <p><strong>把工作台，藏进 Mac 顶部。</strong></p>
   <p>AI 任务、待办、笔记、项目和专注计时，一个抬眼就能找到的本地工作台。</p>
