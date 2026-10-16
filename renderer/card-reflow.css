@@ -1,0 +1,14 @@
+:root {
+  --card-reflow-duration: 460ms;
+  --card-reflow-stagger: 22ms;
+  --card-reflow-ease: cubic-bezier(.22, .7, .15, 1);
+  --card-reflow-reveal: 9px;
+}
+[data-card-reflow] { overflow: hidden; }
+[data-reflow-placeholder] { pointer-events: none; }
+/* The cards own navigation motion; the previous whole-page scale/fade must
+   not distort their geometry or flash the outgoing page underneath them. */
+:root[data-card-reflow-enabled] .tab-panel {
+  transform: none;
+  transition: none;
+}

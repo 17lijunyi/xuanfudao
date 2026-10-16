@@ -1,0 +1,49 @@
+{
+  "scope": "isolated fixtures; no real microphone, credentials or external network",
+  "results": [
+    {
+      "id": "recording-start-race",
+      "streamsOpened": 2,
+      "tracksStillLiveAfterStop": 1,
+      "recordersStillRecording": 1
+    },
+    {
+      "id": "recording-save-failure",
+      "remainingAudioChunks": 0,
+      "remainingDrafts": 0,
+      "transcriptRetained": false,
+      "status": "idle"
+    },
+    {
+      "id": "recording-delete-failure",
+      "deleteReportedSuccess": false,
+      "remainingMetadataRows": 0
+    },
+    {
+      "id": "vault-read-failure",
+      "readReportedOk": true,
+      "displayedRows": 0,
+      "saveReportedOk": true,
+      "previousCiphertextOverwritten": true
+    },
+    {
+      "id": "link-body-timeout",
+      "configuredTimeoutMs": 30,
+      "observedAfterMs": 90,
+      "requestSettled": false,
+      "signalAborted": false
+    },
+    {
+      "id": "dns-validation-gap",
+      "validationAddress": "8.8.8.8",
+      "connectionAddress": "127.0.0.1",
+      "localFixtureRequests": 1,
+      "inspectionReportedOk": true
+    },
+    {
+      "id": "late-link-metadata",
+      "userTitle": "User selected title",
+      "titleAfterDelayedResponse": "Remote page title"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+/* Shared density for the 480 px workbench; larger windows keep their own layout. */
+@media (max-height: 560px) {
+  :root {
+    --compact-inset: 12px;
+    --compact-gap: 8px;
+    --compact-control: 28px;
+    --compact-sidebar: 280px;
+    --compact-code-row: 56px;
+    --compact-list-row: 66px;
+    --compact-heading: 16px;
+    --appearance-sample-height: 32px;
+  }
+
+  /* Keep the complete code catalogue visible, with room for connection status. */
+  .ai-tools-page { padding: var(--compact-inset) 16px; gap: var(--compact-gap); }
+  .ai-tools-header { gap: var(--compact-gap); }
+  .ai-tools-header > strong { font-size: var(--compact-heading); }
+  .ai-tools-search, .ai-tools-close { padding: 5px 10px; }
+  .ai-tools-list { grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: var(--compact-code-row); gap: 6px; }
+  .ai-tools-list .ai-tool-row { padding: 7px 9px; gap: 7px; border-radius: 10px; }
+  .ai-tool-copy { gap: 3px; flex: 1; }
+  .ai-tools-list .ai-tool-icon { width: 22px; height: 22px; flex-basis: 22px; }
+  .ai-tools-feedback:empty { display: none; }
+  .ai-tools-setup { gap: 8px; }
+  .ai-tools-setup button { padding: 5px 9px; }
+  .ai-tools-confirm { gap: 10px; }
+
+  /* Each settings column scrolls as a whole; cards cannot shrink and clip controls. */
+  .settings-page { gap: var(--compact-gap); }
+  .settings-page .settings-column { display: flex; flex-direction: column; gap: var(--compact-gap); overflow-y: auto; padding: 2px; }
+  .settings-page .settings-column > .settings-card { flex: 0 0 auto; padding: var(--compact-inset); }
+  .settings-appearance-card, .settings-window-size-card { gap: 7px; }
+  .settings-card-heading { gap: 8px; }
+  .settings-card-heading strong, .settings-mirror-card strong { font-size: 14px; }
+  .settings-card-heading > small { text-align: right; }
+  .appearance-option { padding: 6px; }
+  .appearance-option-caption { padding-top: 4px; }
+  .appearance-sample-surface { height: 25px; }
+  .settings-mirror-card { grid-template-columns: 86px minmax(0, 1fr); gap: 12px; }
+  .settings-mirror-card img { width: 86px; height: 86px; }
+  .settings-device-row { min-height: 44px; flex-shrink: 0; gap: 8px; }
+  .settings-workspace-row { flex-wrap: wrap; padding: 7px 0; }
+  .settings-workspace-row > div:first-child { flex-basis: 100%; }
+  #settings-workspace-path { max-width: 100%; }
+  .settings-status-list { margin: 9px 0; gap: 6px; }
+  .settings-status-list > div { padding: 7px 8px; }
+  .settings-feature-grid { margin-top: 8px; gap: 6px; overflow: visible; }
+  .settings-feature-grid label, .settings-home-module-grid label { min-height: 42px; padding: 7px 8px; }
+
+  /* Recording rows retain their height as the library grows. */
+  .recording-library-view { gap: var(--compact-gap); }
+  .recordings-page { grid-template-columns: var(--compact-sidebar) minmax(0, 1fr); gap: var(--compact-gap); }
+  .recording-library, .recording-detail { padding: var(--compact-inset); }
+  .recording-library-head { margin-bottom: 8px; gap: 6px; }
+  .recording-library-head .workspace-button { min-height: var(--compact-control); padding: 5px 8px; }
+  .recording-item { flex: 0 0 auto; min-height: var(--compact-list-row); }
+  .recording-item-main { gap: 3px; }
+  .recording-detail-head { flex: 0 0 auto; margin-bottom: 8px; gap: 2px; }
+  .recording-title-input { padding: 2px 5px; font-size: var(--compact-heading); }
+  .recording-audio { flex: 0 0 auto; min-height: 36px; margin-bottom: 8px; padding: 2px 6px; }
+  .recording-transcript-head { flex: 0 0 auto; margin-bottom: 5px; }
+  .recording-transcript-editor { padding: 9px; font-size: 12px; line-height: 1.6; }
+
+  /* Keep all actions inside each credential card, including edit mode. */
+  .credentials-page { grid-template-columns: var(--compact-sidebar) minmax(0, 1fr); gap: var(--compact-gap); }
+  .credentials-form-card, .credentials-library { padding: var(--compact-inset); }
+  .credentials-form-card { gap: 9px; overflow-y: auto; }
+  .credentials-form-card > * { flex-shrink: 0; }
+  .credentials-heading strong, .credentials-library-head strong { font-size: var(--compact-heading); }
+  .credentials-library-head { margin-bottom: 8px; gap: 8px; }
+  .credentials-library-actions input { width: 160px; height: var(--compact-control); }
+  .credential-list { gap: 8px; align-content: start; grid-auto-rows: auto; }
+  .credential-list .credential-item { min-height: 82px; padding: 9px 11px; }
+  .credential-list .credential-actions { gap: 3px; flex-shrink: 0; }
+  .credential-actions button { padding: 3px 6px; min-height: 20px; line-height: 14px; }
+  .credential-list .credential-item.editing { min-height: 160px; height: auto; }
+  .credential-empty { min-height: 160px; }
+
+  /* Fit all six status cards; retain scrolling on exceptionally short screens. */
+  .computer-status-page { --computer-compact-row: 132px; gap: 8px; }
+  .computer-page-title h2 { font-size: 20px; }
+  .computer-page-title > .tile-label { margin-bottom: 2px; }
+  .computer-status-grid { gap: 8px; }
+  .computer-stat-card { padding: 10px 12px; gap: 6px; }
+  .computer-stat-value { font-size: 30px; }
+  .computer-stat-value.uptime { font-size: 24px; }
+  .computer-network-rates { gap: 8px; }
+  .computer-network-rates > div { gap: 4px; }
+  .computer-network-rates strong { font-size: 18px; }
+  .computer-stat-card > p { font-size: 9px; line-height: 1.4; min-height: 2.8em; }
+
+  .notes-page { grid-template-columns: var(--compact-sidebar) minmax(0, 1fr); gap: var(--compact-gap); }
+  .notes-library, .notes-detail { padding: var(--compact-inset); }
+  .notes-library-head { gap: 8px; margin-bottom: 8px; }
+  .notes-library-head strong { font-size: var(--compact-heading); }
+  .notes-search-wrap { width: 145px; height: var(--compact-control); }
+  .notes-list { gap: 6px; }
+  .notes-list-item { flex: 0 0 auto; min-height: var(--compact-list-row); padding: 8px 10px 8px 13px; gap: 3px 8px; }
+  .notes-detail-head { gap: 8px; padding-bottom: 10px; flex-shrink: 0; }
+  .notes-detail-head > div:first-child { flex: 1; }
+  .notes-detail-title { width: 100%; max-width: 100%; font-size: var(--compact-heading); }
+  .notes-editor { padding-top: 10px; }
+
+  .links-page { gap: var(--compact-gap); }
+  .link-groups { gap: var(--compact-gap); align-items: start; }
+  .link-group-head { min-height: 32px; padding: 4px 8px; }
+  .link-group-body { gap: 4px; padding: 0 7px 7px; max-height: 260px; }
+  .link-group.collapsed .link-group-body { max-height: 0; padding-bottom: 0; }
+  .link-item { min-height: 38px; padding: 3px 5px; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 7px; flex-shrink: 0; }
+  .link-favicon { width: 24px; height: 24px; }
+  .links-empty { height: 180px; }
+}
+@media (max-height: 560px) and (max-width: 1100px) {
+  :root { --compact-sidebar: 250px; }
+  .ai-tools-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .recordings-page { grid-template-columns: 270px minmax(0, 1fr); }
+  .notes-search-wrap { width: 125px; }
+}

@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-21",
+  "source_version": "1.5.1",
+  "source_files": {
+    "main.js": "12897514429d223b3d0a10b66bcd8c5d28dea2b7a2eced6055cae3947ff91e50",
+    "main-services.js": "3b735697d9a7d30effbae914d86353fdd0429a209480eb3ded1a807ddf6835dc",
+    "renderer/workspace.js": "c229bd736aeddff9f870b1ea3de2c55783214f90dd1a2f35016685399935eb3e",
+    "renderer/domain.js": "2cc2cd0a0d4d74ee77777db767e8a8b0f6b8705ae3ecbe6b9324332a6d9204db",
+    "preload.js": "44a140751996841c043fafb98f5ce78cdbfad739dcd8d2c9acc5654679d4cfd8"
+  },
+  "product_code_changed_by_review": false,
+  "desktop_check": {
+    "command": "npm test",
+    "exit_code": 0,
+    "unit_pass": 329,
+    "electron_suites": 19
+  },
+  "website": {
+    "unit_pass": 19,
+    "lint": "passed",
+    "build_pages": "passed"
+  },
+  "native": {
+    "fresh_glass_build": "passed",
+    "fresh_glass_test": "passed",
+    "fresh_system_helper_build": "passed"
+  },
+  "probes_are_defect_reproductions": true,
+  "initial_tracked_change_count": 38,
+  "current_tracked_change_count": 38,
+  "scope": "Isolated fixtures only; no real microphone, user vault, installer, publication or remote push."
+}

@@ -1,0 +1,438 @@
+/* Material alpha only affects painted surfaces. Window geometry, content opacity,
+   hit testing and the original opening / closing timelines remain unchanged. */
+/* A replacement page is painted offscreen at its final geometry. Opening and
+   closing animations still apply when entering or leaving the collapsed island. */
+:root[data-surface-handoff] :is(#app, #quick-island),
+:root[data-surface-handoff] :is(#app, #quick-island) *,
+:root[data-surface-handoff] :is(#app, #quick-island)::before,
+:root[data-surface-handoff] :is(#app, #quick-island)::after,
+:root[data-surface-handoff] :is(#app, #quick-island) *::before,
+:root[data-surface-handoff] :is(#app, #quick-island) *::after {
+  transition: none !important;
+}
+:root {
+  --appearance-card-gap: 8px;
+  --appearance-card-radius: 12px;
+  --appearance-sample-height: 43px;
+  --appearance-selected: #b8bdc4;
+  --appearance-selected-fill: rgba(225, 229, 234, .11);
+  --appearance-option-line: rgba(229, 233, 239, .18);
+  --appearance-option-surface: rgba(230, 234, 240, .05);
+  --appearance-option-text: #f0f1f3;
+  --appearance-option-muted: #b6bac0;
+  --appearance-sample-background: #aeb0b3;
+  --appearance-save-error: #dfa76b;
+  --glass-rim-width: 1.5px;
+  --glass-rim-fill: linear-gradient(135deg,
+    rgba(255, 255, 255, .94) 0%,
+    rgba(255, 255, 255, .58) 24%,
+    rgba(255, 255, 255, .16) 48%,
+    rgba(40, 43, 48, .30) 76%,
+    rgba(255, 255, 255, .50) 100%);
+  --glass-rim-shadow:
+    inset 0 0 0 .5px rgba(255, 255, 255, .42),
+    inset 1px 2px 2px -1px rgba(255, 255, 255, .82),
+    inset -1px -2px 2px -1px rgba(35, 38, 43, .38),
+    inset 3px 4px 5px -2px rgba(255, 255, 255, .54),
+    inset -3px -4px 5px -2px rgba(35, 38, 43, .20);
+  --glass-preview-rim-shadow:
+    inset 0 0 0 .75px rgba(255, 255, 255, .72),
+    inset 1px 2px 2px -1px rgba(255, 255, 255, .72),
+    inset -1px -2px 2px -1px rgba(35, 38, 43, .30);
+}
+
+
+:root[data-appearance='system-glass-blurred'] {
+  color-scheme: light;
+  /* Neutral light-gray tint shared by the quick island and workbench. */
+  --glass-tint-rgb: 32, 33, 33;
+  --glass-alpha: .08;
+  --glass-blur: 24px;
+  --glass-desktop-blur: 20px;
+  --glass-tile-alpha: .10;
+  --glass-edge-strength: 1;
+  --glass-ink: #080a0c;
+  --glass-muted: #161a20;
+  --glass-soft: #252a31;
+  --glass-line: rgba(255, 255, 255, .16);
+  --glass-group-line: rgba(30, 39, 49, .36);
+  --clip-border-text: var(--glass-group-line);
+  --clip-border-url: var(--glass-group-line);
+  --clip-border-image: var(--glass-group-line);
+  --glass-folder-ink: #24618f;
+  --glass-group-radius: 20px;
+  --glass-group-gap: 9px;
+  --glass-button-radius: 999px;
+  --glass-surface: rgba(var(--glass-tint-rgb), var(--glass-alpha));
+  --glass-card-surface: rgba(250, 250, 250, var(--glass-tile-alpha));
+  --glass-card-shadow: inset 0 0 0 1px var(--glass-group-line), inset 0 2px 3px -2px rgba(255, 255, 255, .68);
+  --glass-surface-shadow: var(--glass-rim-shadow), 0 12px 28px rgba(30, 31, 35, .12);
+  --glass-control-surface: rgba(255, 255, 255, .10);
+  --glass-modal-surface: rgba(240, 241, 241, .96);
+  --glass-green: #103c28;
+  --glass-yellow: #4f3008;
+  --glass-red: #65212a;
+  --glass-blue: #133957;
+  --glass-control-hover: rgba(255, 255, 255, .14);
+  --glass-input: rgba(var(--glass-tint-rgb), .13);
+  --bg-base: var(--glass-surface);
+  --surface-1: var(--glass-card-surface);
+  --surface-2: rgba(255, 255, 255, .10);
+  --surface-3: rgba(255, 255, 255, .15);
+  --text-1: var(--glass-ink);
+  --text-2: var(--glass-muted);
+  --text-3: var(--glass-soft);
+  --text-4: #2b3139;
+  --hairline: var(--glass-line);
+  --hairline-soft: rgba(255, 255, 255, .10);
+  --highlight-top: rgba(255, 255, 255, .25);
+  --tile-highlight: rgba(255, 255, 255, .12);
+  --island-shell-surface: var(--glass-surface);
+  --island-shell-border: transparent;
+  --island-shell-shadow: var(--glass-surface-shadow);
+  --island-edge-opacity: var(--glass-edge-strength);
+  --island-edge-fill: var(--glass-rim-fill);
+  --island-edge-top-inset: 0px;
+  --island-bg: var(--glass-surface);
+  --island-line: var(--glass-line);
+  --island-foreground: var(--glass-ink);
+  --island-muted: var(--glass-muted);
+  --computer-muted: var(--glass-muted);
+  --computer-line: var(--glass-line);
+  --computer-meter-bg: rgba(255, 255, 255, .16);
+  --computer-accent: #4b88ba;
+  --computer-pressure-warning: var(--glass-yellow);
+  --computer-pressure-critical: var(--glass-red);
+  --accent-green: var(--glass-green);
+  --accent-blue: var(--glass-blue);
+  --scrollbar-thumb: rgba(52, 59, 68, .24);
+  --scrollbar-thumb-hover: rgba(52, 59, 68, .40);
+  --item-hover: var(--glass-control-hover);
+  --tooltip-bg: var(--glass-modal-surface);
+  --home-note-surface: transparent;
+  --home-mirror-surface: transparent;
+  --appearance-selected: var(--glass-ink);
+  --appearance-selected-fill: rgba(255, 255, 255, .12);
+  --appearance-option-line: rgba(255, 255, 255, .24);
+  --appearance-option-surface: rgba(255, 255, 255, .06);
+  --appearance-option-text: var(--glass-ink);
+  --appearance-option-muted: var(--glass-muted);
+  --appearance-save-error: var(--glass-yellow);
+  --workspace-return-width: 90px;
+}
+
+/* Each entry and feature owns a bounded glass surface. */
+:root[data-appearance='system-glass-blurred'] :is(.tab, .workspace-link, .island-brand, .workspace-return, .system-tool, .tool-button) {
+  background: var(--glass-control-surface);
+  border-radius: var(--glass-button-radius);
+  box-shadow: var(--glass-card-shadow);
+}
+:root[data-appearance='system-glass-blurred'] .tabs { gap: 5px; background: transparent; box-shadow: none; }
+:root[data-appearance='system-glass-blurred'] .tab.active { background: rgba(255, 255, 255, .25); }
+:root[data-appearance='system-glass-blurred'] .island-content {
+  gap: var(--glass-group-gap);
+  padding: 9px 18px 18px;
+}
+:root[data-appearance='system-glass-blurred'] .island-content > section {
+  padding: 10px;
+  border: 0;
+  border-radius: var(--glass-group-radius);
+  background: var(--glass-card-surface);
+  box-shadow: var(--glass-card-shadow);
+}
+:root[data-appearance='system-glass-blurred'] .island-content > .quick-clock { border: 0 !important; }
+:root[data-appearance='system-glass-blurred'] .ai-tools-list .ai-tool-row { box-shadow: var(--glass-card-shadow); }
+
+/* Native macOS vibrancy supplies blur behind the window. CSS backdrop filtering
+   only sees this renderer's own layers; it does not blur another application. */
+:root[data-appearance='system-glass-blurred'] .panel::before,
+:root[data-appearance='system-glass-blurred'] #quick-island::before {
+  background: var(--glass-surface);
+  border-color: transparent;
+  box-shadow: var(--glass-surface-shadow);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+/* The sharp outer glint and the soft inset bevel are separate paint layers.
+   Neither changes layout or the native backdrop's rounded clipping geometry. */
+.appearance-glass-rim { display: none; }
+:root[data-appearance='system-glass-blurred'] .panel::after,
+:root[data-appearance='system-glass-blurred'] .appearance-glass-rim {
+  padding: var(--glass-rim-width);
+  background: var(--glass-rim-fill);
+}
+:root[data-appearance='system-glass-blurred'] #quick-island > .appearance-glass-rim {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  clip-path: inset(0 calc(50% - var(--island-collapsed-width) / 2) calc(100% - var(--island-notch-height)) round 0 0 var(--island-collapsed-radius) var(--island-collapsed-radius));
+  transition: clip-path var(--island-close-duration) var(--island-ease), opacity var(--island-close-duration) ease;
+}
+:root[data-appearance='system-glass-blurred'] #quick-island[data-visible='true'] > .appearance-glass-rim {
+  opacity: 1;
+  clip-path: inset(0 0 0 round 0 0 var(--island-radius) var(--island-radius));
+  transition-duration: var(--island-open-duration);
+}
+
+/* The physical notch stays black at exactly its existing 200 px safe width. */
+:root[data-appearance='system-glass-blurred'] #app::before,
+:root[data-appearance='system-glass-blurred'] #quick-island::after {
+  content: '';
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 50%;
+  width: var(--codex-notch-center-width, 200px);
+  height: var(--notch-h, var(--island-notch-height, 38px));
+  transform: translateX(-50%);
+  border-radius: 0 0 12px 12px;
+  background: #000;
+  pointer-events: none;
+}
+/* The old small-window frame must be fully transparent before native resizing. */
+:root[data-appearance='system-glass-blurred'] #app.opening::before { display: none; }
+:root[data-appearance='system-glass-blurred'] #app.collapsed .notch,
+:root[data-appearance='system-glass-blurred'] #app.closing .notch {
+  background: #000;
+  box-shadow: none;
+  border-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+/* Keep foreground glyphs crisp. Glass highlights belong only to the frame. */
+:root[data-appearance='system-glass-blurred'] :is(.panel, #quick-island),
+:root[data-appearance='system-glass-blurred'] :is(.panel, #quick-island) * {
+  text-shadow: none;
+}
+
+:root[data-appearance='system-glass-blurred'] .tile,
+:root[data-appearance='system-glass-blurred'] .priority-card,
+:root[data-appearance='system-glass-blurred'] .link-group,
+:root[data-appearance='system-glass-blurred'] .recording-library,
+:root[data-appearance='system-glass-blurred'] .recording-detail,
+:root[data-appearance='system-glass-blurred'] .notes-library,
+:root[data-appearance='system-glass-blurred'] .notes-detail,
+:root[data-appearance='system-glass-blurred'] .credential-card,
+:root[data-appearance='system-glass-blurred'] .computer-stat-card {
+  background: var(--glass-card-surface);
+  box-shadow: var(--glass-card-shadow);
+}
+:root[data-appearance='system-glass-blurred'] .home-bento > .home-codex[data-home-module] {
+  background: var(--glass-card-surface);
+}
+/* The timer shares the single glass card rim; no second progress frame. */
+:root[data-appearance='system-glass-blurred'] .home-pomodoro,
+:root[data-appearance='system-glass-blurred'] .home-pomodoro[data-widget-size] {
+  border: 0 !important;
+  background: var(--glass-card-surface);
+}
+:root[data-appearance='system-glass-blurred'] .home-pomodoro::before {
+  content: none;
+}
+:root[data-appearance='system-glass-blurred'] :is(.tabs, .tab-indicator, .quick-activity) {
+  background: var(--glass-control-surface);
+  box-shadow: inset 0 1px 1px rgba(239, 249, 255, .23);
+}
+:root[data-appearance='system-glass-blurred'] :is(.tab, .workspace-link, .tool-button, .system-tool) { color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] :is(.tab.active, .island-brand, .workspace-return, .tab:hover, .workspace-link:hover, .tool-button:hover, .system-tool:hover) { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(.codex-float, .codex-dialog) {
+  --codex-muted: var(--glass-muted);
+  --codex-line: var(--glass-line);
+  --codex-ink: var(--glass-ink);
+  --codex-green: var(--glass-green);
+  --codex-yellow: var(--glass-yellow);
+  --codex-red: var(--glass-red);
+}
+:root[data-appearance='system-glass-blurred'] .codex-track { background: var(--computer-meter-bg); }
+:root[data-appearance='system-glass-blurred'] :is(.module-kicker, .module-hint, .module-empty, .clock-date, .weather-hint, .heatmap-label, .computer-summary-footer, .computer-stat-heading > small, .computer-stat-card > p, .computer-page-title .tile-label, #computer-updated) { color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] :is(.quick-app > small, .quick-apps-hint, .quick-week button span, .agenda-copy small, .calendar-all, .note-footer, .timer-duration, .codex-task-group-empty, .ai-tools-instruction, .ai-tool-copy small, .ai-tools-confirm p) { color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] .quick-week button[aria-current='date'] span { color: var(--glass-blue); }
+:root[data-appearance='system-glass-blurred'] #quick-note-input::placeholder { color: var(--glass-soft); }
+:root[data-appearance='system-glass-blurred'] #quick-timer-state { color: var(--glass-yellow); }
+:root[data-appearance='system-glass-blurred'] #quick-note-input { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] #quick-week button[aria-pressed='true'],
+:root[data-appearance='system-glass-blurred'] .quick-week button[aria-current='date'] { background: rgba(181, 223, 255, .16); }
+:root[data-appearance='system-glass-blurred'] .ai-tools-page { background: var(--glass-card-surface); border-color: var(--glass-line); color: var(--glass-ink); color-scheme: light; }
+:root[data-appearance='system-glass-blurred'] .ai-tools-list .ai-tool-row { background: var(--glass-control-surface); border-color: var(--glass-line); }
+:root[data-appearance='system-glass-blurred'] .ai-tools-list .ai-tool-row[data-selected='true'] { background: rgba(160, 216, 190, .15); }
+:root[data-appearance='system-glass-blurred'] .ai-tools-search { background: var(--glass-input); border-color: var(--glass-line); color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] #project-drawer {
+  --pd-bg: rgba(var(--glass-tint-rgb), .08);
+  --pd-side: rgba(var(--glass-tint-rgb), .10);
+  --pd-item: rgba(255, 255, 255, .06);
+  --pd-hover: var(--glass-control-hover);
+  --pd-line: var(--glass-group-line);
+  --pd-text: var(--glass-ink);
+  --pd-muted: var(--glass-muted);
+  --pd-accent: var(--glass-blue);
+}
+:root[data-appearance='system-glass-blurred'] #project-drawer .pd-file-icon.folder { color: var(--glass-folder-ink); }
+:root[data-appearance='system-glass-blurred'] #project-drawer .pd-category { border-color: var(--glass-group-line); }
+:root[data-appearance='system-glass-blurred'] #project-drawer .pd-file-icon:not(.folder) { color: var(--glass-soft); }
+:root[data-appearance='system-glass-blurred'] :is(.codex-dialog, .quick-weather-dialog, .quick-mirror-panel, .transcription-settings-card, .todo-date-popover),
+:root[data-appearance='system-glass-blurred'] #project-drawer dialog { background: var(--glass-modal-surface); border-color: var(--glass-line); }
+
+/* Keep labels legible as the real backdrop changes under clear glass. These
+   rules deliberately exclude the collapsed .codex-notch tree. */
+:root[data-appearance='system-glass-blurred'] :is(.panel, #quick-island) { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(
+  .tile-label, .clock-time, .weather-entry > span, .quick-week button strong,
+  .agenda-copy strong, .computer-stat-heading > span, .computer-network-rates strong,
+  .codex-thread-title, .codex-unavailable-value, .codex-detail-section h3,
+  .codex-reset-item, .ai-provider-quota strong, .ai-provider-actions button,
+  .home-pomodoro .pomodoro-dial span, .home-pomodoro .pomodoro-dial input,
+  .todo-battery b, .todo-category-name:focus, .quick-apps-edit,
+  .quick-mirror-panel header, .quick-weather-dialog
+) { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(
+  .codex-quota-label > span, .codex-task-group-head, .codex-task-group-head small,
+  .ai-switch-chevron, .ai-provider-connection, .ai-provider-quota,
+  .ai-provider-hint, .ai-provider-task > small, .ai-tools-feedback, .ai-tools-no-results,
+  .pomodoro-label, .pomodoro-status, .pomodoro-caption, .pomodoro-settings,
+  .computer-network-rates small, .weather-entry > svg, .today-agenda > svg,
+  .note-footer button, .timer-reset, .quick-weather-dialog label,
+  .quick-weather-dialog header button, .quick-mirror-panel header button,
+  .todo-item .delete
+) { color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] :is(.codex-details-button, .ai-tool-website) { color: var(--glass-blue) !important; }
+:root[data-appearance='system-glass-blurred'] .ai-tool-icon { filter: brightness(0); opacity: 1; }
+:root[data-appearance='system-glass-blurred'] #quick-month { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] #quick-timer-time { color: var(--glass-yellow); }
+:root[data-appearance='system-glass-blurred'] #quick-timer-duration { color: var(--glass-yellow); background: rgba(182, 144, 70, .1); }
+:root[data-appearance='system-glass-blurred'] #quick-weather-city { color: var(--glass-ink); background: var(--glass-input); border-color: var(--glass-line); }
+:root[data-appearance='system-glass-blurred'] :is(#quick-weather-note, #quick-weather-system) { color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] .quick-clock { border-left-color: var(--glass-line) !important; }
+:root[data-appearance='system-glass-blurred'] :is(.quick-week button[aria-current='date'] span, .quick-week button[aria-current='date'] strong, .calendar-all, .weather-save, .settings-device-row em) { color: var(--glass-blue); }
+:root[data-appearance='system-glass-blurred'] :is(.island-brand:hover, .workspace-link:hover, .system-tool:hover, .tool-button:hover, .quick-apps-edit:hover, .ai-tools-list .ai-tool-row:hover) { background: var(--glass-control-hover); color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(.home-mirror, .mirror-stage) { background: var(--glass-card-surface); }
+:root[data-appearance='system-glass-blurred'] :is(.widget-size-control, .widget-size-control:hover, .shortcut-recorder, .quick-app-icon) { background: var(--glass-control-surface); color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] :is(.collapse-btn, .workspace-button, .record-control, .quick-apps-edit, .weather-save, .status-toast button) { background: var(--glass-control-surface); border-color: var(--glass-line); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
+:root[data-appearance='system-glass-blurred'] :is(button.quick-apps-edit, button.note-save) { box-shadow: var(--glass-card-shadow); }
+:root[data-appearance='system-glass-blurred'] :is(.home-pomodoro > .pomodoro-toggle, .home-pomodoro .pomodoro-controls button) { color: var(--glass-ink); background: rgba(118, 148, 176, .2); }
+:root[data-appearance='system-glass-blurred'] :is(.home-pomodoro > .pomodoro-reset, .home-pomodoro .pomodoro-controls .pomodoro-reset) { color: var(--glass-red); background: rgba(174, 53, 55, .12); }
+:root[data-appearance='system-glass-blurred'] .note-save { color: var(--glass-ink); background: var(--glass-control-surface); }
+:root[data-appearance='system-glass-blurred'] .note-save:hover { color: var(--glass-ink); background: var(--glass-control-hover); }
+:root[data-appearance='system-glass-blurred'] .timer-track circle { stroke: rgba(244, 213, 152, .22); }
+:root[data-appearance='system-glass-blurred'] .timer-track #quick-timer-progress { stroke: var(--glass-yellow); }
+:root[data-appearance='system-glass-blurred'] .quick-heatmap button { background: rgba(70, 100, 86, .17); }
+:root[data-appearance='system-glass-blurred'] .quick-heatmap button[data-count='1'] { background: #a3c9b4; }
+:root[data-appearance='system-glass-blurred'] .quick-heatmap button[data-count='2'] { background: #72b18f; }
+:root[data-appearance='system-glass-blurred'] .quick-heatmap button[data-count='3'] { background: #48936b; }
+:root[data-appearance='system-glass-blurred'] .quick-heatmap button[data-count='4'] { background: #257a50; }
+:root[data-appearance='system-glass-blurred'] .todo-count { color: var(--glass-blue); background: rgba(97, 156, 211, .18); }
+:root[data-appearance='system-glass-blurred'] #quick-mirror[aria-pressed='true'] { color: var(--glass-blue); background: rgba(97, 156, 211, .18); }
+:root[data-appearance='system-glass-blurred'] .codex-quota[data-level='unknown'] .codex-track { background: repeating-linear-gradient(90deg, rgba(78, 102, 89, .24) 0 8px, transparent 8px 11px); }
+:root[data-appearance='system-glass-blurred'] :is(.codex-task-group, .codex-task-group-head small) { background: var(--glass-control-surface); }
+:root[data-appearance='system-glass-blurred'] :is(.codex-task-group[data-task-group='running'] .codex-task-group-head, .heatmap-label > span, .secure-chip, .settings-status-list small[data-state='saved'], .settings-hud-card[data-state='active'] .settings-hud-badge, .settings-home-module-section[data-settings-tier='core'] .settings-home-module-heading strong) { color: var(--glass-green); }
+:root[data-appearance='system-glass-blurred'] :is(.codex-task-group[data-task-group='attention'] .codex-task-group-head, .credentials-note.error, .bulk-delete, .bulk-delete:hover, .notes-delete:hover, .credential-actions button[data-credential-delete]:hover) { color: var(--glass-red); }
+:root[data-appearance='system-glass-blurred'] :is(.settings-status-list small[data-state='warning'], .settings-hud-card[data-state='permission'] .settings-hud-badge, .settings-hud-card .settings-hud-notice, .quick-activity[data-kind='timer']) { color: var(--glass-yellow); }
+:root[data-appearance='system-glass-blurred'] :is(#settings-home-module-status[data-state='warning'], #computer-updated[data-state='unavailable']) { color: var(--glass-yellow); }
+:root[data-appearance='system-glass-blurred'] .settings-inline-note { color: var(--glass-green) !important; }
+:root[data-appearance='system-glass-blurred'] .settings-inline-note.error { color: var(--glass-red) !important; }
+:root[data-appearance='system-glass-blurred'] .quick-activity[data-kind='recording'] { color: var(--glass-red); }
+:root[data-appearance='system-glass-blurred'] .codex-close { background: var(--glass-control-surface) !important; color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(.ai-tools-close, .ai-tools-confirm-actions .ai-confirm-primary) { background: rgba(55, 91, 117, .12) !important; color: var(--glass-ink) !important; }
+:root[data-appearance='system-glass-blurred'] .ai-tool-radio { border-color: var(--glass-soft); }
+:root[data-appearance='system-glass-blurred'] [aria-checked='true'] .ai-tool-radio { background: var(--glass-blue); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .86); }
+:root[data-appearance='system-glass-blurred'] :is(.todo-editor-card, .todo-date-popover .todo-editor-card, .todo-date-popover .todo-editor-card::after, .quick-message) { background: var(--glass-modal-surface); color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(.todo-date-popover .todo-editor-card, .shortcut-recorder, .quick-weather-dialog, .quick-mirror-panel, .quick-message) { border-color: var(--glass-line); }
+:root[data-appearance='system-glass-blurred'] :is(.add-row input, .command-add, .group-link-add, .link-add-wrap input, .recording-transcript-editor, .recording-audio, .todo-editor-name input, .todo-time-row select, .credentials-form-card input, .credentials-library-actions input, .credential-inline-fields input, .credential-item.editing input) { background: var(--glass-input); color: var(--glass-ink); color-scheme: light; border-color: var(--glass-line); }
+:root[data-appearance='system-glass-blurred'] :is(input, textarea)::placeholder { color: var(--glass-soft); }
+:root[data-appearance='system-glass-blurred'] :is(.settings-feature-grid i, .settings-auto-launch-row > i, .settings-home-module-grid i, .settings-hud-toggle i) { background: rgba(58, 81, 103, .19); box-shadow: inset 0 0 0 1px rgba(58, 81, 103, .1); }
+:root[data-appearance='system-glass-blurred'] :is(.settings-feature-grid input:checked + i, .settings-auto-launch-row input:checked + i, .settings-home-module-grid input:checked + i, .settings-hud-toggle input:checked + i) { background: #5285b1; }
+:root[data-appearance='system-glass-blurred'] #project-drawer :is(.pd-file.is-selected, .pd-category.is-drop) { background: rgba(152, 194, 228, .26); }
+:root[data-appearance='system-glass-blurred'] #project-drawer .pd-primary { background: rgba(42, 87, 123, .13); color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] #project-drawer :is(input[type='text'], input[type='search'], select, dialog) { border-color: var(--glass-line); color-scheme: light; }
+:root[data-appearance='system-glass-blurred'] .computer-meter[data-computer-meter='memory']::after { background: #9170c0; }
+:root[data-appearance='system-glass-blurred'] .computer-meter[data-computer-meter='disk']::after { background: #359c94; }
+:root[data-appearance='system-glass-blurred'] .computer-meter[data-computer-meter='battery']::after { background: #529450; }
+
+/* Hover, saved and unavailable states use the same deep foreground palette. */
+:root[data-appearance='system-glass-blurred'] :is(#quick-month:hover, .today-agenda[data-has-todos='true'] .agenda-copy strong) { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(.workspace-button.primary, .status-toast button) { color: var(--glass-ink); }
+:root[data-appearance='system-glass-blurred'] :is(.quick-activity, .computer-summary-open:hover .computer-summary-footer, .weather-entry:hover .weather-hint, .quick-app[data-unavailable='true'] > small) { color: var(--glass-muted); }
+:root[data-appearance='system-glass-blurred'] :is(.shortcut-recorder kbd, .todo-inline-save) { color: var(--glass-blue); }
+:root[data-appearance='system-glass-blurred'] :is(.api-field-heading small[data-state='saved'], .transcription-settings-note.success) { color: var(--glass-green); }
+:root[data-appearance='system-glass-blurred'] :is(.api-field-heading small[data-state='warning'], .weather-entry[data-stale='true'] .weather-hint, .quick-activity[data-kind='timer']) { color: var(--glass-yellow); }
+:root[data-appearance='system-glass-blurred'] :is(#todo-editor-error, .transcription-settings-note.error, .links-status[data-tone='error'], .quick-activity[data-kind='recording'], .clip-clear-btn:hover, .clip-clear-btn.confirming, .clip-del-btn:hover, .icon-button.danger:hover, .recording-item-delete:hover) { color: var(--glass-red); }
+:root[data-appearance='system-glass-blurred'] .note-library-delete:hover { color: var(--glass-red) !important; }
+
+/* Settings previews intentionally contain their own small sample backdrop. The
+   real island and workbench never use a screenshot or fabricated desktop image. */
+.settings-appearance-card { display: flex; flex-direction: column; gap: 13px; }
+#settings-appearance-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--appearance-card-gap); }
+.appearance-option {
+  position: relative;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid var(--appearance-option-line);
+  border-radius: var(--appearance-card-radius);
+  color: var(--appearance-option-text);
+  background: var(--appearance-option-surface);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+.appearance-option:hover { border-color: rgba(216, 239, 255, .42); }
+.appearance-option[aria-checked='true'] { border-color: var(--appearance-selected); background: var(--appearance-selected-fill); }
+.appearance-option:focus-visible { outline: 2px solid var(--focus-ring, #92b5ff); outline-offset: 2px; }
+.appearance-option:disabled { cursor: default; }
+.appearance-sample { position: relative; display: block; height: var(--appearance-sample-height); overflow: hidden; border-radius: 7px; background: var(--appearance-sample-background); }
+.appearance-sample-surface { position: absolute; top: 0; left: 12%; width: 76%; height: 30px; border-radius: 0 0 10px 10px; background: rgba(245, 245, 247, var(--appearance-sample-alpha)); box-shadow: var(--glass-preview-rim-shadow); backdrop-filter: blur(2px); }
+.appearance-option[data-appearance-preset='classic'] .appearance-sample-surface { background: #000; box-shadow: none; }
+.appearance-sample-island { position: absolute; top: 0; left: 38%; width: 24%; height: 6px; border-radius: 0 0 3px 3px; background: #000; }
+.appearance-option-caption { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 3px 6px; padding-top: 7px; }
+.appearance-option-caption strong { color: var(--appearance-option-text); font-size: 10px; font-weight: 550; }
+.appearance-option-caption small { color: var(--appearance-option-muted); font-size: 9px; font-variant-numeric: tabular-nums; }
+.appearance-option-check { position: absolute; top: 11px; right: 11px; display: grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; background: #eaf5ff; color: #183249; text-shadow: none; font-size: 10px; font-weight: 650; visibility: hidden; }
+.appearance-option[aria-checked='true'] .appearance-option-check { visibility: visible; }
+.settings-appearance-card #settings-appearance-note { min-height: 14px; color: var(--appearance-option-muted); font-size: 10px; }
+.settings-appearance-card #settings-appearance-note[data-state='error'] { color: var(--appearance-save-error); }
+:root[data-appearance='system-glass-blurred'] #settings-mirror-preview { box-shadow: 0 2px 8px rgba(0, 0, 0, .09); }
+@media (prefers-reduced-motion: reduce) {
+  .appearance-option,
+  :root[data-appearance='system-glass-blurred'] #quick-island > .appearance-glass-rim { transition: none; }
+}
+
+.appearance-option[data-appearance-preset='system-glass-blurred'] .appearance-sample-surface { backdrop-filter: blur(8px); }
+
+/* Opaque black uses the existing light foreground without any glass backing. */
+:root[data-appearance='classic'] {
+  color-scheme: dark;
+  --bg-base: #000;
+  --island-bg: #000;
+  --island-shell-surface: #000;
+  --island-shell-shadow: none;
+  --island-edge-opacity: 0;
+}
+:root[data-appearance='classic'] .panel::before,
+:root[data-appearance='classic'] #quick-island::before,
+.appearance-option[data-appearance-preset='classic'] .appearance-sample-surface {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Width choices follow appearance, with the same keyboard and selected states. */
+.settings-window-size-card { display: flex; flex-direction: column; gap: 13px; }
+#settings-window-size-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--appearance-card-gap); }
+#settings-window-size-note { min-height: 14px; color: var(--appearance-option-muted); font-size: 10px; }
+#settings-window-size-note[data-state='error'] { color: var(--appearance-save-error); }
+
+/* The bundled translucent icon needs a white backing on the black theme.
+   Restrict to the stock asset so personal covers and camera frames stay intact. */
+:root[data-appearance='classic'] .mirror-photo:not(.mirror-liquid-layer)[src$="xuanfudao-icon.png"],
+:root[data-appearance='classic'] #settings-mirror-preview[src$="xuanfudao-icon.png"] {
+  filter: url(#mirror-cover-solid);
+}
+:root[data-appearance='classic'] #settings-mirror-preview[src$="xuanfudao-icon.png"] {
+  box-shadow: none;
+}

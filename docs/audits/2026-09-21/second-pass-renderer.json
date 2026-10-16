@@ -1,0 +1,31 @@
+{
+  "scope": "actual renderer + preload; fresh isolated profiles; mocked services and microphone; network denied",
+  "results": [
+    {
+      "name": "baseline",
+      "initialized": true,
+      "errors": []
+    },
+    {
+      "name": "commands-wrong-shape",
+      "initialized": false,
+      "errors": [
+        "Uncaught TypeError: loadJson(...).map is not a function"
+      ]
+    },
+    {
+      "name": "recordings-wrong-shape",
+      "initialized": false,
+      "errors": [
+        "Uncaught TypeError: loadJson(...).map is not a function"
+      ]
+    },
+    {
+      "name": "recording-start-race",
+      "streamsOpened": 2,
+      "liveTracks": 1,
+      "activeRecorders": 1,
+      "uiActive": false
+    }
+  ]
+}

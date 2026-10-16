@@ -1,0 +1,126 @@
+/* Quick controls share the settings-page controllers and persisted values. */
+:root {
+  --quick-preference-width: 264px;
+  --quick-preference-radius: 18px;
+  --quick-preference-padding: 15px;
+  --quick-preference-offset: 6px;
+  --quick-preference-sample: 52px;
+  --quick-preference-surface: #1b1d21;
+  --quick-preference-line: #494d54;
+  --quick-preference-ink: #f0f1f3;
+  --quick-preference-muted: #b6bac0;
+  --quick-preference-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+  --quick-preference-glass-sample: linear-gradient(135deg, #e3f0f5, #84b4c7 65%, #c0d9e4);
+  --quick-preference-black-sample: #000;
+  --quick-preference-screen-width: 30px;
+  --quick-preference-screen-height: 20px;
+  --quick-preference-screen-small: 25px;
+  --quick-preference-check: 17px;
+  --quick-preference-title-size: 12px;
+  --quick-preference-label-size: 11px;
+  --quick-preference-note-size: 10px;
+}
+:root[data-appearance='system-glass-blurred'] {
+  --quick-preference-surface: #e5edf1;
+  --quick-preference-line: #869da8;
+  --quick-preference-ink: var(--glass-ink);
+  --quick-preference-muted: var(--glass-muted);
+}
+.island-tools .tool-button { border-radius: 50%; }
+:root[data-appearance='classic'] .island-tools .tool-button {
+  box-shadow: inset 0 0 0 1px var(--quick-preference-line);
+}
+.island-tools .tool-button[data-quick-preference][aria-expanded='true'] {
+  background: var(--quick-preference-ink);
+  color: var(--quick-preference-surface);
+}
+.quick-preference-panel {
+  position: absolute;
+  z-index: 12;
+  top: calc(var(--island-menu-inset) + var(--topbar-height) + var(--quick-preference-offset));
+  right: 18px;
+  width: min(var(--quick-preference-width), calc(100% - 36px));
+  padding: var(--quick-preference-padding);
+  border: 1px solid var(--quick-preference-line);
+  border-radius: var(--quick-preference-radius);
+  color: var(--quick-preference-ink);
+  background: var(--quick-preference-surface);
+  box-shadow: var(--quick-preference-shadow);
+}
+.quick-preference-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: var(--quick-preference-title-size);
+}
+.quick-preference-panel > header strong { font-weight: 500; }
+.quick-preference-panel > header span { font-size: var(--quick-preference-note-size); color: var(--quick-preference-muted); }
+.quick-preference-panel .appearance-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+}
+.quick-preference-panel .appearance-sample {
+  flex-shrink: 0;
+  width: var(--quick-preference-sample);
+  height: var(--quick-preference-sample);
+  border: 1px solid var(--quick-preference-line);
+  border-radius: 50%;
+  background: var(--quick-preference-glass-sample);
+}
+.quick-preference-panel .appearance-option[aria-checked='true'] .appearance-sample {
+  outline: 2px solid var(--quick-preference-ink);
+  outline-offset: 3px;
+}
+.quick-preference-panel [data-appearance-preset='classic'] .appearance-sample { background: var(--quick-preference-black-sample); }
+.quick-preference-panel [data-appearance-preset] :is(.appearance-sample-surface, .appearance-sample-island) { display: none; }
+.quick-preference-panel .appearance-option-caption { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0; }
+.quick-preference-panel .appearance-option-caption strong { font-size: var(--quick-preference-label-size); font-weight: 400; color: var(--quick-preference-ink); }
+.quick-preference-panel .appearance-option-caption small { font-size: var(--quick-preference-note-size); color: var(--quick-preference-muted); }
+.quick-preference-panel .appearance-option-check {
+  top: calc(var(--quick-preference-sample) - var(--quick-preference-check) + 2px);
+  right: calc(50% - var(--quick-preference-sample) / 2 - 3px);
+  width: var(--quick-preference-check);
+  height: var(--quick-preference-check);
+  border: 2px solid var(--quick-preference-surface);
+  color: var(--quick-preference-surface);
+  background: var(--quick-preference-ink);
+}
+.quick-preference-panel [data-window-size-preset] .appearance-sample { background: var(--quick-preference-surface); }
+.quick-preference-panel [data-window-size-preset] .appearance-sample-surface {
+  width: var(--quick-preference-screen-width) !important;
+  height: var(--quick-preference-screen-height);
+  left: 50% !important;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--quick-preference-ink);
+  border-radius: 4px;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.quick-preference-panel [data-window-size-preset='B'] .appearance-sample-surface { width: var(--quick-preference-screen-small) !important; }
+.quick-preference-panel [data-window-size-preset] .appearance-sample-island {
+  top: calc(50% - var(--quick-preference-screen-height) / 2);
+  left: 42%;
+  width: 16%;
+  height: 4px;
+  background: var(--quick-preference-ink);
+}
+.quick-preference-panel > p {
+  min-height: 14px;
+  padding-top: 10px;
+  margin: 12px 0 0;
+  border-top: 1px solid var(--quick-preference-line);
+  color: var(--quick-preference-muted);
+  font-size: var(--quick-preference-note-size);
+  text-align: center;
+  line-height: 1.4;
+}
+.quick-preference-panel > p[data-state='error'] { color: var(--appearance-save-error); }

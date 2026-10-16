@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'" />
+  <title>悬浮岛 · 系统状态</title>
+  <link rel="stylesheet" href="island-popup.css" />
+  <link rel="stylesheet" href="status-island.css" />
+</head>
+<body>
+  <section id="status-island" class="notification-root" data-visible="false" aria-label="悬浮岛系统状态" aria-hidden="true" inert>
+    <span class="notification-notch" aria-hidden="true"></span>
+    <button id="status-compact" type="button" hidden aria-label="展开当前活动"><span id="compact-icon" class="status-icon"></span><span class="notch-safe"></span><span id="compact-value"></span></button>
+    <div id="status-expanded" class="notification-shell" hidden>
+      <div id="status-main" class="notification-capsule notification-codex-content">
+        <span id="status-tool" class="notification-tool" aria-hidden="true"></span>
+        <div class="notification-copy">
+          <div id="status-heading" class="notification-project"><label id="status-title" for="status-range"></label><output id="status-number" for="status-range" hidden></output></div>
+          <span id="status-detail" class="notification-source"></span>
+        </div>
+        <input id="status-range" type="range" min="0" max="100" step="1" hidden />
+        <div id="status-error" class="notification-source" role="status" aria-live="polite" hidden></div>
+      </div>
+      <button id="status-close" class="notification-completed-mark notification-capsule" type="button" aria-label="收起状态提示"><span id="status-icon" class="status-icon" aria-hidden="true"></span></button>
+    </div>
+  </section>
+  <script src="popup-appearance.js"></script>
+  <script src="status-island.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+@property --card-motion-surface-height {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+:root {
+  --card-motion-duration: 460ms;
+  --card-motion-ease: cubic-bezier(.22, .7, .15, 1);
+  --card-motion-reveal-offset: 9px;
+}
+
+/* The native window provides a fixed canvas. Only the renderer's surface and
+   actual cards move; the existing material, typography and controls are reused. */
+:root[data-card-motion] :is(.panel, #quick-island) {
+  clip-path: inset(0 0 calc(100% - var(--card-motion-surface-height))
+    round 0 0 var(--r-panel, var(--island-radius)) var(--r-panel, var(--island-radius)));
+}
+:root[data-card-motion] .panel::before,
+:root[data-card-motion] .panel::after,
+:root[data-card-motion] #quick-island::before,
+:root[data-card-motion] #quick-island > .appearance-glass-rim {
+  height: var(--card-motion-surface-height) !important;
+  bottom: auto !important;
+  clip-path: inset(0 round 0 0 var(--r-panel, var(--island-radius)) var(--r-panel, var(--island-radius))) !important;
+  transition: none !important;
+}
+:root[data-card-motion] .island-content {
+  height: calc(var(--card-motion-target-height) - var(--island-menu-inset) - var(--topbar-height));
+  overflow: visible;
+}
+:root[data-card-motion] .home-bento { overflow: visible; }
+:root[data-card-motion] [data-card-motion-item] {
+  position: absolute !important;
+  grid-area: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  transform: none !important;
+  translate: none !important;
+  z-index: 20 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+[data-card-motion-placeholder] { visibility: hidden !important; pointer-events: none !important; }

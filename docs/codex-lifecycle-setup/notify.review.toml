@@ -1,0 +1,4 @@
+# 仅用于审阅；替换用户配置中现有顶层 notify 一行，不追加第二个 notify。
+# 已核实当前 notify 为 SkyComputerUseClient turn-ended。
+# 新桥接的 notify 模式继续原样转发该通知，再向浮岛发送脱敏元字段。
+notify = ["/usr/local/bin/node", "/Applications/浮岛.app/Contents/Resources/app/scripts/fudao-codex-hook.js", "notify"]
