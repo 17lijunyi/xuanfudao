@@ -208,9 +208,11 @@ async function main() {
     const eventId = await evaluate('document.documentElement.dataset.appearance');
     assert.equal(eventId,'classic');
     const focusBeforeTheme = controller.getWindow().isFocused();
-    appearance={selectedId:'system-glass-blurred',revision:1};
+    appearance={selectedId:'system-glass-blurred',showNotchWings:false,revision:1};
     controller.syncAppearance(appearance);
     await waitFor(`document.documentElement.dataset.appearance==='system-glass-blurred'`);
+    assert.equal(await evaluate(`document.querySelector('.notification-notch').getBoundingClientRect().width`),200,'关闭两侧状态即时收回系统提示顶盖');
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('.notification-notch')).opacity`),'0','隐藏状态下系统提示不得再画顶部黑块');
     if (native) {
       await waitFor(`document.documentElement.dataset.nativeGlass==='true'`);
       assert.equal(native.inspect(controller.getWindow().getNativeWindowHandle(),0).width,254);
@@ -222,11 +224,14 @@ async function main() {
     controller.getWindow().webContents.send('appearance:changed',{selectedId:'classic',revision:0});
     await delay(50);
     assert.equal(await evaluate('document.documentElement.dataset.appearance'),'system-glass-blurred','旧快照不能覆盖新材质');
+    assert.equal(await evaluate(`document.querySelector('.notification-notch').getBoundingClientRect().width`),200,'旧快照不能恢复两侧状态');
     assert.equal(controller.getWindow().isFocused(),focusBeforeTheme,'切主题不能改变原来的焦点');
     assert.equal(controller.getWindow().isFocusable(),false);
     appearance={selectedId:'classic',revision:2};
     controller.syncAppearance(appearance);
     await waitFor(`document.documentElement.dataset.appearance==='classic'`);
+    assert.equal(await evaluate(`document.querySelector('.notification-notch').getBoundingClientRect().width`),256,'重新开启两侧状态恢复系统提示顶盖');
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('.notification-notch')).opacity`),'1');
     if(native) assert.equal(native.inspect(controller.getWindow().getNativeWindowHandle(),1),null);
     await controller.dismiss();
     assert.equal(controller.getCurrent().compact,true,'短时提醒后恢复计时');

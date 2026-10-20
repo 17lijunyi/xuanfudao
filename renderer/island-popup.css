@@ -47,6 +47,7 @@ html, body {
   width: var(--notification-collapsed-width); height: var(--notification-strip);
   border-radius: 0 0 17px 17px; background: #000; pointer-events: none;
 }
+:root[data-notch-wings='hidden'] .notification-notch { opacity: 0; }
 .notification-shell {
   position: absolute; left: var(--notification-inset); right: var(--notification-inset);
   top: calc(var(--notification-strip) + 16px); height: var(--notification-pill-height);

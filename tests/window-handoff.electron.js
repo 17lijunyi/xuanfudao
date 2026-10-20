@@ -46,7 +46,7 @@ async function main() {
     canShowQuickIsland: () => context.currentMode === 'collapsed',
     QUICK_ISLAND_WORKSPACE_TABS: new Set(['home', 'todo', 'projects', 'codes', 'notes', 'links', 'recordings', 'credentials', 'settings']),
     systemUIBlocks: () => false, getWindowDisplay: () => ({}), getBoundsForMode: bounds, getQuickIslandBounds: quickBounds,
-    getCollapsedHeight: () => 38, getMenuBarHeight: () => 38, getLayoutMetrics: metrics,
+    getCollapsedHeight: () => 38, getCollapsedWidth: () => 256, getMenuBarHeight: () => 38, getLayoutMetrics: metrics,
     refreshTrayMenu: () => {}, syncHoverSpacePolling: () => {},
     statusIsland: { sync: async () => {}, syncForAppSurface: async () => {} },
     createQuickIslandWindow: async () => quickIslandWindow, rememberPasteTarget: async () => {},

@@ -9,12 +9,15 @@
   const presetIds = new Set(presets.map((preset) => preset.id));
   const root = document.documentElement;
   const api = window.notchAPI;
-  let committed = { selectedId: 'system-glass-blurred', revision: -1 };
+  let committed = { selectedId: 'system-glass-blurred', showNotchWings: true, revision: -1 };
   let desiredId = null;
+  let desiredWings = null;
   let pending = false;
+  let wingsPending = false;
   let ready = false;
   let options;
   let note;
+  let wingsSwitch;
   let statusText = '正在读取外观…';
   let statusKind = 'loading';
 
@@ -30,13 +33,20 @@
   function paint() {
     const selectedId = desiredId || committed.selectedId;
     root.dataset.appearance = selectedId;
+    const showNotchWings = desiredWings ?? committed.showNotchWings;
+    root.dataset.notchWings = !ready ? 'loading' : committed.showNotchWings ? 'visible' : 'hidden';
+    if (wingsSwitch) {
+      wingsSwitch.checked = showNotchWings;
+      wingsSwitch.disabled = !ready || pending || wingsPending || typeof api?.setNotchWingsVisible !== 'function';
+      wingsSwitch.setAttribute('aria-busy', String(wingsPending));
+    }
     if (!options) return;
-    options.setAttribute('aria-busy', String(pending));
+    options.setAttribute('aria-busy', String(pending || wingsPending));
     options.querySelectorAll('[data-appearance-preset]').forEach((button) => {
       const selected = button.dataset.appearancePreset === selectedId;
       button.setAttribute('aria-checked', String(selected));
-      button.tabIndex = selected && ready ? 0 : -1;
-      button.disabled = !ready;
+      button.tabIndex = selected && ready && !wingsPending ? 0 : -1;
+      button.disabled = !ready || wingsPending;
     });
     window.cardReflow?.selectOption(options, options.querySelector(`[data-appearance-preset="${selectedId}"]`));
   }
@@ -46,8 +56,11 @@
       || !Number.isSafeInteger(snapshot.revision) || snapshot.revision < 0
       || snapshot.revision < committed.revision) return false;
     // A revision identifies one saved value. An older asynchronous read cannot undo it.
-    if (snapshot.revision === committed.revision && snapshot.selectedId !== committed.selectedId) return false;
-    committed = { selectedId: snapshot.selectedId, revision: snapshot.revision };
+    const showNotchWings = snapshot.showNotchWings !== false;
+    if (snapshot.revision === committed.revision
+      && (snapshot.selectedId !== committed.selectedId || showNotchWings !== committed.showNotchWings)) return false;
+    committed = { selectedId: snapshot.selectedId, showNotchWings, revision: snapshot.revision };
+    root.style.setProperty('--island-collapsed-width', showNotchWings ? '256px' : '200px');
     ready = true;
     paint();
     return true;
@@ -86,7 +99,7 @@
   }
 
   function choose(id) {
-    if (!ready || !presetIds.has(id)) return;
+    if (!ready || wingsPending || !presetIds.has(id)) return;
     if (!pending && id === committed.selectedId) {
       setStatus(savedLabel());
       return;
@@ -96,9 +109,36 @@
     void persistDesired();
   }
 
+  async function chooseNotchWings(showNotchWings) {
+    if (!ready || pending || wingsPending || typeof api?.setNotchWingsVisible !== 'function') {
+      paint();
+      return;
+    }
+    desiredWings = showNotchWings;
+    wingsPending = true;
+    paint();
+    setStatus('正在保存…', 'saving');
+    let result;
+    try {
+      result = await api.setNotchWingsVisible(showNotchWings);
+    } catch {
+      result = null;
+    }
+    if (result?.snapshot) acceptSnapshot(result.snapshot);
+    const saved = result?.ok === true && result.snapshot?.showNotchWings === showNotchWings
+      && Number.isSafeInteger(result.snapshot?.revision) && result.snapshot.revision >= 0;
+    desiredWings = null;
+    wingsPending = false;
+    paint();
+    setStatus(saved ? `已保存 · 两侧状态已${committed.showNotchWings ? '显示' : '隐藏'}`
+      : '保存失败，已恢复原来的显示设置。请重试。', saved ? 'saved' : 'error');
+  }
+
   function mount() {
     options = document.getElementById('settings-appearance-options');
     note = document.getElementById('settings-appearance-note');
+    wingsSwitch = document.getElementById('settings-notch-wings');
+    wingsSwitch?.addEventListener('change', () => { void chooseNotchWings(wingsSwitch.checked); });
     if (!options) return;
     options.setAttribute('role', 'radiogroup');
     options.setAttribute('aria-label', '窗口风格');
@@ -156,6 +196,7 @@
   }
 
   root.dataset.appearance = 'system-glass-blurred';
+  root.dataset.notchWings = 'loading';
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
   else mount();
 
@@ -165,7 +206,7 @@
   }
 
   const unsubscribe = api.onAppearanceSettingsChanged((snapshot) => {
-    if (acceptSnapshot(snapshot) && !desiredId && !pending) setStatus(savedLabel());
+    if (acceptSnapshot(snapshot) && !desiredId && !pending && !wingsPending) setStatus(savedLabel());
   });
   window.addEventListener('pagehide', () => {
     if (typeof unsubscribe === 'function') unsubscribe();
@@ -175,7 +216,7 @@
       if (!ready) setStatus('外观读取失败，请重新打开工作台。', 'error');
       return;
     }
-    if (!desiredId && !pending) setStatus(savedLabel());
+    if (!desiredId && !pending && !wingsPending) setStatus(savedLabel());
   }).catch(() => {
     if (!ready) setStatus('外观读取失败，请重新打开工作台。', 'error');
   });

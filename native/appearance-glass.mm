@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include "system-ui-window-policy.h"
 #import <objc/message.h>
 
 // Runtime-only Core Animation capability. Unlike a window-wide blur radius,
@@ -335,16 +336,14 @@ static napi_value SystemUIBounds(napi_env env, napi_callback_info info) {
     @"com.apple.notificationcenterui", @"com.apple.TextInputMenuAgent"]];
   NSMutableDictionary *owners = [NSMutableDictionary dictionary];
   napi_value result; napi_create_array(env, &result);
+  const std::int64_t cursorLayer = CGWindowLevelForKey(kCGCursorWindowLevelKey);
   uint32_t index = 0;
   for (NSDictionary *row in windows) {
     NSNumber *pid = row[(id)kCGWindowOwnerPID];
     NSInteger layer = [row[(id)kCGWindowLayer] integerValue];
-    if (!pid || pid.intValue == NSProcessInfo.processInfo.processIdentifier || layer < 20 ||
+    if (!pid || pid.intValue == NSProcessInfo.processInfo.processIdentifier ||
+        !shouldInspectSystemUIWindowLayer(layer, cursorLayer) ||
         [row[(id)kCGWindowAlpha] doubleValue] <= 0) continue;
-    // Menu-bar backgrounds (24) and persistent status-item hit areas (25)
-    // are not transient overlays. Their transparent padding may extend into
-    // the wings; treating it as an obstruction permanently hides the status.
-    if (layer == 24 || layer == 25) continue;
     NSString *bundle = owners[pid];
     if (!bundle) {
       bundle = [NSRunningApplication runningApplicationWithProcessIdentifier:pid.intValue].bundleIdentifier ?: @"";

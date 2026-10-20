@@ -38,7 +38,7 @@ async function main() {
     setTimeout,clearTimeout,Date,Promise,
     stopQuickIslandPointerWatch:()=>{},startQuickIslandPointerWatch:()=>{},syncHoverSpacePolling:()=>{},refreshTrayMenu:()=>{},
     statusIsland:{hide:()=>{},sync:async()=>{},syncForAppSurface:async()=>{}},
-    getWindowDisplay:()=>display,getCollapsedHeight:()=>38,getMenuBarHeight:()=>38,getBoundsForMode:bounds,getLayoutMetrics:()=>({stripHeight:38}),
+    getWindowDisplay:()=>display,getCollapsedHeight:()=>38,getCollapsedWidth:()=>256,getMenuBarHeight:()=>38,getBoundsForMode:bounds,getLayoutMetrics:()=>({stripHeight:38}),
     getQuickIslandBounds:()=>({...bounds('expanded'),height:308}),createQuickIslandWindow:async()=>quickIslandWindow,
     islandActivities:{},systemStatus:{getSnapshot:async()=>({})},isIslandSender:()=>true,
     normalizeAppearanceSurface:require(path.join(root,'appearance-surface')).normalizeAppearanceSurface,

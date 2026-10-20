@@ -120,8 +120,10 @@ async function main() {
     await wait(480);
     await assertGeometry(34);
     assert.equal((await geometry()).background,'rgb(5, 5, 6)');
-    setTheme({selectedId:'system-glass-blurred',revision:1});
+    setTheme({selectedId:'system-glass-blurred',showNotchWings:false,revision:1});
     await waitFor(`document.documentElement.dataset.appearance==='system-glass-blurred'`,'主题实时变为玻璃');
+    assert.equal((await geometry()).notch.width,200,'关闭两侧状态即时收回当前提醒顶盖');
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('.notification-notch')).opacity`),'0','隐藏状态下提醒不得再画顶部黑块');
     if (native) {
       await waitFor(`document.documentElement.dataset.nativeGlass==='true'`,'真实原生背景到达两个胶囊');
       const handle=window.getNativeWindowHandle();
@@ -137,10 +139,13 @@ async function main() {
     setTheme({selectedId:'classic',revision:0});
     await wait(30);
     assert.equal(await evaluate('document.documentElement.dataset.appearance'),'system-glass-blurred','忽略旧主题快照');
+    assert.equal((await geometry()).notch.width,200,'旧快照不能恢复两侧状态');
     if (process.env.FUDAO_POPUP_SCREENSHOTS) fs.writeFileSync(path.join(process.env.FUDAO_POPUP_SCREENSHOTS,'capsule-glass.png'),(await window.webContents.capturePage()).toPNG());
     setTheme({selectedId:'classic',revision:2});
     await waitFor(`document.documentElement.dataset.appearance==='classic'`,'主题实时恢复纯黑');
     assert.equal((await geometry()).background,'rgb(5, 5, 6)');
+    assert.equal((await geometry()).notch.width,256,'重新开启两侧状态恢复提醒顶盖');
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('.notification-notch')).opacity`),'1');
     if (native) {
       assert.equal(native.inspect(window.getNativeWindowHandle(),0),null);
       assert.equal(native.inspect(window.getNativeWindowHandle(),1),null);

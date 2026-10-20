@@ -22,6 +22,12 @@
   --appearance-option-muted: #b6bac0;
   --appearance-sample-background: #aeb0b3;
   --appearance-save-error: #dfa76b;
+  --appearance-switch-width: 34px;
+  --appearance-switch-height: 20px;
+  --appearance-switch-thumb: 16px;
+  --appearance-switch-inset: 2px;
+  --appearance-switch-on: #5285b1;
+  --appearance-switch-off: #666b73;
   --glass-rim-width: 1.5px;
   --glass-rim-fill: linear-gradient(135deg,
     rgba(255, 255, 255, .94) 0%,
@@ -207,6 +213,13 @@
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+/* The 200px center is an input area, not an exact physical-camera cutout.
+   Hide all folded paint (including the glass theme's black ::before cap),
+   while retaining DOM/native hit testing for hover and click. */
+:root[data-notch-wings='hidden'] #app.collapsed:not(.previewing),
+:root[data-notch-wings='loading'] #app.collapsed { opacity: 0; }
+:root[data-notch-wings='hidden'] #app.closing .notch,
+:root[data-notch-wings='hidden'] #app.closing::before { opacity: 0; }
 /* Keep foreground glyphs crisp. Glass highlights belong only to the frame. */
 :root[data-appearance='system-glass-blurred'] :is(.panel, #quick-island),
 :root[data-appearance='system-glass-blurred'] :is(.panel, #quick-island) * {
@@ -397,9 +410,29 @@
 .appearance-option[aria-checked='true'] .appearance-option-check { visibility: visible; }
 .settings-appearance-card #settings-appearance-note { min-height: 14px; color: var(--appearance-option-muted); font-size: 10px; }
 .settings-appearance-card #settings-appearance-note[data-state='error'] { color: var(--appearance-save-error); }
+.appearance-wings-row { display: grid; grid-template-columns: minmax(0, 1fr) var(--appearance-switch-width); align-items: center; gap: 10px; cursor: pointer; }
+.appearance-wings-copy { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+.appearance-wings-copy strong { color: var(--appearance-option-text); font-size: 11px; font-weight: 500; line-height: 1.4; }
+.appearance-wings-copy small { color: var(--appearance-option-muted); font-size: 10px; line-height: 1.4; }
+.appearance-wings-row input { grid-column: 2; grid-row: 1; width: var(--appearance-switch-width); height: var(--appearance-switch-height); margin: 0; opacity: 0; z-index: 1; cursor: inherit; }
+.appearance-wings-row > i { grid-column: 2; grid-row: 1; display: block; height: var(--appearance-switch-height); border-radius: 999px; background: var(--appearance-switch-off); transition: background 140ms ease; pointer-events: none; }
+.appearance-wings-row > i::after { content: ''; display: block; width: var(--appearance-switch-thumb); height: var(--appearance-switch-thumb); margin: var(--appearance-switch-inset); border-radius: 50%; background: #fff; transition: transform 140ms ease; }
+.appearance-wings-row input:checked + i { background: var(--appearance-switch-on); }
+.appearance-wings-row input:checked + i::after { transform: translateX(calc(var(--appearance-switch-width) - var(--appearance-switch-thumb) - 2 * var(--appearance-switch-inset))); }
+.appearance-wings-row input:focus-visible + i { outline: 2px solid var(--focus-ring, #92b5ff); outline-offset: 3px; }
+.appearance-wings-row:has(input:disabled) { cursor: default; }
+.appearance-wings-row input:disabled + i { opacity: .55; }
+/* Keep this extra row inside the quick island's 270px content area. */
+#quick-appearance-panel { --quick-preference-sample: 42px; --quick-preference-padding: 12px; }
+#quick-appearance-panel > header { margin-bottom: 10px; }
+#quick-appearance-panel .appearance-option { gap: 6px; }
+#quick-appearance-panel .appearance-wings-row { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--quick-preference-line); }
+#quick-appearance-panel > p { margin-top: 8px; padding-top: 8px; }
 :root[data-appearance='system-glass-blurred'] #settings-mirror-preview { box-shadow: 0 2px 8px rgba(0, 0, 0, .09); }
 @media (prefers-reduced-motion: reduce) {
   .appearance-option,
+  .appearance-wings-row > i,
+  .appearance-wings-row > i::after,
   :root[data-appearance='system-glass-blurred'] #quick-island > .appearance-glass-rim { transition: none; }
 }
 

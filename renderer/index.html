@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-appearance="system-glass-blurred">
+<html lang="zh-CN" data-appearance="system-glass-blurred" data-notch-wings="loading">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -454,6 +454,11 @@
                     <small>速览与工作台同步</small>
                   </div>
                   <div id="settings-appearance-options" role="radiogroup" aria-label="窗口风格"></div>
+                  <label class="appearance-wings-row" for="settings-notch-wings">
+                    <span class="appearance-wings-copy"><strong id="settings-notch-wings-title">显示刘海两侧状态</strong><small id="settings-notch-wings-description">关闭后藏入刘海，悬停仍可展开</small></span>
+                    <input id="settings-notch-wings" type="checkbox" role="switch" aria-labelledby="settings-notch-wings-title" aria-describedby="settings-notch-wings-description" checked disabled />
+                    <i aria-hidden="true"></i>
+                  </label>
                   <p id="settings-appearance-note" role="status" aria-live="polite" aria-atomic="true">正在读取外观…</p>
                 </section>
                 <section class="tile settings-card settings-window-size-card">

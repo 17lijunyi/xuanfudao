@@ -107,7 +107,8 @@ function createIslandStatusWindow({ BrowserWindow, getBounds, isAllowed, onClose
       focusRequested = false;
       target.show(); target.focus();
     } else if (!wasVisible) target.showInactive();
-    target.webContents.send('island:status-show', { ...data, interactive: interactiveSession && Boolean(feedback), width: bounds.width, height: bounds.height, stripHeight: getBounds(true).height, collapsedWidth: 256, eventId: surfaceEventId, appearance: getAppearance(), animate: !wasVisible || wasCompact !== (data.compact === true) });
+    const appearance = getAppearance();
+    target.webContents.send('island:status-show', { ...data, interactive: interactiveSession && Boolean(feedback), width: bounds.width, height: bounds.height, stripHeight: getBounds(true).height, collapsedWidth: appearance?.showNotchWings === false ? 200 : 256, eventId: surfaceEventId, appearance, animate: !wasVisible || wasCompact !== (data.compact === true) });
   }
 
   function expire(delay = 3000) {

@@ -97,6 +97,7 @@ contextBridge.exposeInMainWorld('notchAPI', {
   getAppearanceSettings: () => ipcRenderer.invoke('appearance:get'),
   updateAppearanceSurface: (shape) => ipcRenderer.send('appearance:surface', shape),
   setAppearancePreset: (presetId) => ipcRenderer.invoke('appearance:set', presetId),
+  setNotchWingsVisible: (visible) => ipcRenderer.invoke('appearance:set-notch-wings', visible),
   onAppearanceSettingsChanged: (cb) => subscribe('appearance:changed', (event, snapshot) => cb(snapshot)),
   setFeature: (featureId, enabled) => ipcRenderer.invoke('settings:set-feature', { featureId, enabled }),
   setAutoLaunch: (enabled) => ipcRenderer.invoke('settings:set-auto-launch', enabled === true),

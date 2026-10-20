@@ -36,11 +36,20 @@ test('polling changes only our window policy, recovers from failed reads and sto
   guard.stop(); guard.stop(); assert.equal(cancelCount, 1);
 });
 
-test('folded island retains its full width regardless of menu-bar overlap', () => {
+test('folded width follows only the wings preference and never the system UI obstruction', () => {
   const fs = require('node:fs'), vm = require('node:vm');
   const source = fs.readFileSync(require('node:path').join(__dirname, '../main.js'), 'utf8');
   const start = source.indexOf('function getCollapsedWidth('), end = source.indexOf('\n// 展开尺寸', start);
-  const context = { COLLAPSED_WIDTH: 256 };
+  assert.ok(start >= 0 && end > start);
+  let snapshot = {};
+  const context = { COLLAPSED_CENTER_WIDTH: 200, COLLAPSED_WIDTH: 256,
+    appearanceSettings: { getSnapshot: () => snapshot },
+    systemUIBlocks: () => { throw new Error('system UI must not determine the island width'); },
+    systemUIGuard: new Proxy({}, { get: () => { throw new Error('system UI must not determine the island width'); } }),
+  };
   vm.createContext(context); vm.runInContext(source.slice(start, end), context);
-  assert.equal(vm.runInContext('getCollapsedWidth()', context), 256);
+  for (const [showNotchWings, expected] of [[undefined, 256], [true, 256], [false, 200], [true, 256]]) {
+    snapshot = { showNotchWings };
+    assert.equal(vm.runInContext('getCollapsedWidth()', context), expected);
+  }
 });

@@ -24,6 +24,8 @@ async function main() {
   let failNextWrite = false;
   let holdNextWrite = false;
   let releaseWrite;
+  let holdInitialRead = true;
+  const initialReads = [];
   const fileSystem = { ...fs, promises: { ...fs.promises, rename: async (...args) => {
     if (failNextWrite) { failNextWrite = false; throw new Error('fixture_write_failure'); }
     return fs.promises.rename(...args);
@@ -57,14 +59,17 @@ async function main() {
   });
   for (const channel of new Set([...fs.readFileSync(preload, 'utf8').matchAll(/ipcRenderer\.invoke\('([^']+)'/g)].map(match => match[1]))) {
     ipcMain.handle(channel, async (event, ...args) => {
-      if (channel === 'appearance:get') return service.getSnapshot();
-      if (channel === 'appearance:set') {
+      if (channel === 'appearance:get') {
+        if (holdInitialRead) await new Promise(resolve => initialReads.push(resolve));
+        return service.getSnapshot();
+      }
+      if (channel === 'appearance:set' || channel === 'appearance:set-notch-wings') {
         writes.push(args[0]);
         if (holdNextWrite) {
           holdNextWrite = false;
           await new Promise(resolve => { releaseWrite = resolve; });
         }
-        const result = await service.setPreset(args[0]);
+        const result = await (channel === 'appearance:set' ? service.setPreset(args[0]) : service.setNotchWingsVisible(args[0]));
         if (result.ok) broadcast(result.snapshot);
         return result;
       }
@@ -107,7 +112,7 @@ async function main() {
     await waitFor(workbench, `getComputedStyle(document.querySelector('.panels')).opacity === '1'`, `${tab} content is fully visible`);
   }
   async function showQuick() {
-    quick.webContents.send('quick-island:show', { stripHeight: 38, menuBarHeight: 38, safeAreaTop: 38, collapsedWidth: 256, interactive: true, version: 'test' });
+    quick.webContents.send('quick-island:show', { stripHeight: 38, menuBarHeight: 38, safeAreaTop: 38, collapsedWidth: service.getSnapshot().showNotchWings ? 256 : 200, interactive: true, version: 'test' });
     await waitFor(quick, `document.getElementById('quick-island').dataset.visible === 'true' && getComputedStyle(document.querySelector('.island-content')).opacity === '1'`, 'quick island opens');
   }
   async function waitForSelection(id) {
@@ -119,12 +124,40 @@ async function main() {
     await evaluate(workbench, `document.querySelector('[data-appearance-preset="${id}"]').click()`);
     await waitForSelection(id);
   }
+  async function waitForWings(visible) {
+    for (const window of windows) await waitFor(window, `(() => {
+      const toggle = document.getElementById('settings-notch-wings');
+      return toggle.checked === ${visible} && !toggle.disabled
+        && document.documentElement.dataset.notchWings === '${visible ? 'visible' : 'hidden'}';
+    })()`, 'notch wing preference syncs to both renderers');
+    assert.equal(service.getSnapshot().showNotchWings, visible);
+  }
+  async function assertQuickAppearanceFits() {
+    const fit = await evaluate(quick, `(() => {
+      const panel = document.getElementById('quick-appearance-panel');
+      const bounds = panel.getBoundingClientRect();
+      const toggle = document.getElementById('settings-notch-wings');
+      const switchBounds = toggle.getBoundingClientRect();
+      return { inWindow: bounds.left >= 0 && bounds.right <= innerWidth && bounds.bottom <= innerHeight,
+        noOverflow: panel.scrollHeight <= panel.clientHeight + 1 && panel.scrollWidth <= panel.clientWidth + 1,
+        switchHit: document.elementFromPoint(switchBounds.x + switchBounds.width / 2, switchBounds.y + switchBounds.height / 2) === toggle };
+    })()`);
+    assert.deepEqual(fit, { inWindow: true, noOverflow: true, switchHit: true }, 'quick appearance and its switch fit and remain clickable');
+  }
   async function screenshot(window, name) {
     const directory = process.env.FUDAO_APPEARANCE_SCREENSHOTS;
     if (!directory) return;
     fs.mkdirSync(directory, { recursive: true });
     await evaluate(window, 'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
     fs.writeFileSync(path.join(directory, `${name}.png`), (await window.webContents.capturePage()).toPNG());
+  }
+  async function paintedPixels(window) {
+    await evaluate(window, `new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+    const bitmap = (await window.webContents.capturePage()).toBitmap({ scaleFactor: 1 });
+    assert.ok(bitmap.length > 0, 'pixel capture is nonempty');
+    let count = 0;
+    for (let i = 3; i < bitmap.length; i += 4) if (bitmap[i] !== 0) count++;
+    return count;
   }
   const geometryCode = selector => `(() => { const r = document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect(); return { x:r.x, y:r.y, width:r.width, height:r.height }; })()`;
   try {
@@ -135,8 +168,16 @@ async function main() {
     }
     await load(workbench, 'index.html');
     await load(quick, 'quick-island.html');
+    for (const window of windows) {
+      assert.equal(await evaluate(window, `(() => { const toggle = document.getElementById('settings-notch-wings'); toggle.click(); return toggle.checked && toggle.disabled; })()`), true, 'notch wing control defaults on and is disabled while loading');
+    }
+    assert.equal(await paintedPixels(workbench), 0, 'before saved appearance loads, folded content must not flash a black cap');
+    assert.deepEqual(writes, [], 'loading controls cannot save an unconfirmed default');
+    holdInitialRead = false;
+    initialReads.splice(0).forEach(resolve => resolve());
     await openTab('settings');
     await showQuick();
+    await waitForWings(true);
     await waitFor(workbench, `document.querySelectorAll('[data-appearance-preset]:not(:disabled)').length === 2`, 'both appearances are ready');
     assert.deepEqual(await evaluate(workbench, `[...document.querySelectorAll('[data-appearance-preset]')].map(button => button.dataset.appearancePreset)`), ['system-glass-blurred', 'classic']);
     const initialBounds = windows.map(window => window.getBounds());
@@ -147,6 +188,7 @@ async function main() {
     await waitFor(quick, `!document.querySelector('#quick-appearance-panel').hidden && document.activeElement.dataset.appearancePreset === 'system-glass-blurred'`, 'quick appearance opens and focuses default glass');
     const popupFits = await evaluate(quick, `(() => { const p = document.querySelector('#quick-appearance-panel').getBoundingClientRect(); return p.left >= 0 && p.right <= innerWidth && p.bottom <= innerHeight; })()`);
     assert.equal(popupFits, true, 'quick appearance stays inside the native window');
+    await assertQuickAppearanceFits();
     await screenshot(quick, 'quick-appearance-menu');
     await evaluate(quick, `document.querySelector('[data-appearance-preset="classic"]').click()`);
     await waitForSelection('classic');
@@ -231,8 +273,56 @@ async function main() {
       }
     }
 
+    // Both real setting pages share the saved switch, including failures and reloads.
+    await evaluate(workbench, `document.getElementById('settings-notch-wings').click()`);
+    await waitForWings(false);
+    assert.equal(await evaluate(quick, `document.documentElement.style.getPropertyValue('--island-collapsed-width')`), '200px', 'the visible quick cap follows the saved preference');
+    assert.equal(JSON.parse(fs.readFileSync(preferenceFile)).showNotchWings, false, 'the hidden preference is persisted');
+    assert.equal(createAppearanceSettingsService({ filePath: preferenceFile }).getSnapshot().showNotchWings, false, 'a restarted service restores hidden wings');
+    await load(workbench, 'index.html');
+    await load(quick, 'quick-island.html');
+    await openTab('settings');
+    await showQuick();
+    await waitForWings(false);
+    await evaluate(quick, `document.querySelector('[data-quick-preference="appearance"]').click()`);
+    await waitFor(quick, `!document.getElementById('quick-appearance-panel').hidden`, 'quick appearance reopens after reload');
+    failNextWrite = true;
+    await evaluate(quick, `document.getElementById('settings-notch-wings').click()`);
+    await waitFor(quick, `document.getElementById('settings-appearance-note').dataset.state === 'error'`, 'failed wing save is explained');
+    await waitForWings(false);
+    assert.equal(JSON.parse(fs.readFileSync(preferenceFile)).showNotchWings, false, 'a failed wing save preserves the previous disk value');
+    await assertQuickAppearanceFits();
+    await screenshot(quick, 'notch-wings-save-error');
+    await evaluate(quick, `document.getElementById('settings-notch-wings').click()`);
+    await waitForWings(true);
+    assert.equal(await evaluate(quick, `document.getElementById('settings-appearance-note').dataset.state`), 'saved', 'retrying the failed quick switch succeeds');
+    await evaluate(quick, `document.getElementById('settings-notch-wings').click()`);
+    await waitForWings(false);
+    const wingSnapshot = service.getSnapshot();
+    broadcast({ ...wingSnapshot, showNotchWings: true, revision: wingSnapshot.revision - 1 });
+    broadcast({ ...wingSnapshot, showNotchWings: true });
+    await wait(50);
+    await waitForWings(false);
+
+    holdNextWrite = true;
+    releaseWrite = null;
+    await evaluate(workbench, `document.getElementById('settings-notch-wings').click()`);
+    for (let i = 0; i < 100 && !releaseWrite; i++) await wait(10);
+    assert.equal(typeof releaseWrite, 'function', 'fixture holds the wing save');
+    assert.equal(await evaluate(workbench, `document.getElementById('settings-notch-wings').disabled && [...document.querySelectorAll('[data-appearance-preset]')].every(button => button.disabled)`), true, 'a pending wing save prevents conflicting local controls');
+    assert.equal(await evaluate(workbench, `document.documentElement.style.getPropertyValue('--island-collapsed-width')`), '200px', 'pending saves do not change the committed cap geometry');
+    await evaluate(quick, `document.querySelector('[data-appearance-preset="system-glass-blurred"]').click()`);
+    await waitFor(quick, `document.getElementById('settings-appearance-note').dataset.state === 'saved' && document.documentElement.dataset.appearance === 'system-glass-blurred'`, 'the other window can save its material');
+    releaseWrite();
+    await waitForWings(true);
+    await waitForSelection('system-glass-blurred');
+    assert.equal(JSON.parse(fs.readFileSync(preferenceFile)).showNotchWings, true, 'the final wing value is retained alongside the other window material');
+    await screenshot(quick, 'notch-wings-enabled');
+    await choose('classic');
+
     // Keep only the latest choice while an earlier write is delayed.
     holdNextWrite = true;
+    releaseWrite = null;
     await evaluate(workbench, `document.querySelector('[data-appearance-preset="system-glass-blurred"]').click()`);
     for (let i = 0; i < 100 && !releaseWrite; i++) await wait(10);
     assert.equal(typeof releaseWrite, 'function', 'fixture holds the first appearance save');
@@ -287,11 +377,24 @@ async function main() {
     assert.deepEqual(await evaluate(workbench, `(() => { const s=getComputedStyle(document.getElementById('notch')); return {background:s.backgroundColor,shadow:s.boxShadow}; })()`), {background:'rgb(0, 0, 0)',shadow:'none'}, 'the whole collapsed island including both wings remains pure black');
     assert.equal(await evaluate(workbench, `getComputedStyle(document.querySelector('.codex-notch-quota')).color`), 'rgb(237, 237, 237)', 'collapsed quota remains white');
     assert.ok(surfaceHistory.filter(entry => entry.sender === workbench.webContents.id && entry.payload.viewport?.width === 256).every(entry => !entry.payload.surface), 'collapsed viewport never receives any glass shape');
+    assert.ok(await paintedPixels(workbench) > 0, 'visible folded island supplies real opaque pixels as a capture control');
+    for (const id of ['classic', 'system-glass-blurred']) {
+      await evaluate(workbench, `window.notchAPI.setAppearancePreset(${JSON.stringify(id)})`);
+      await waitForSelection(id);
+      await evaluate(workbench, 'window.notchAPI.setNotchWingsVisible(false)');
+      await waitForWings(false);
+      assert.equal(await paintedPixels(workbench), 0, `${id}: hidden folded island has no black cap, border, shadow or glyph pixels`);
+      assert.equal(workbench.getOpacity(), 1, 'native window opacity is retained for input');
+      assert.equal(await evaluate(workbench, `document.getElementById('notch').contains(document.elementFromPoint(innerWidth / 2, 16))`), true, 'transparent center remains a DOM input target');
+      await evaluate(workbench, 'window.notchAPI.setNotchWingsVisible(true)');
+      await waitForWings(true);
+      assert.ok(await paintedPixels(workbench) > 0, `${id}: enabling the switch restores folded paint`);
+    }
     quick.webContents.send('quick-island:hide', { reason: 'explicit' });
     await waitFor(quick, `document.getElementById('quick-island').dataset.visible === 'false'`, 'quick island collapses');
     await waitForSurface(quick, payload => payload.surface === null, 'hidden quick island clears native material');
     assert.deepEqual(mediaCalls, [], 'appearance selection never requests camera or microphone');
-    console.log('PASS appearance: soft-glass default, pure black, legacy migration, clear-glass rejection, rounded navigation and six groups, deep text, full product name, MiMo Code, geometry, preload sync, notch safety, full-opacity content and collapse');
+    console.log('PASS appearance: soft-glass default, pure black, legacy migration, notch-wing switch loading/save/reload/failure/concurrent sync, popup fit and hit testing, rounded navigation and six groups, geometry, preload sync, notch safety, full-opacity content and collapse');
   } finally { for (const window of windows) if (!window.isDestroyed()) window.destroy(); }
 }
 

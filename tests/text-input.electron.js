@@ -46,7 +46,7 @@ async function run() {
     quickIslandOpening: 0, quickIslandInteractive: false, quickIslandNativeFocusable: false,
     quickIslandGeneration: 0, quickIslandHideTimer: null,
     clearTimeout, getWindowDisplay: () => ({}), createQuickIslandWindow: async () => window,
-    getCollapsedHeight: () => 38, getMenuBarHeight: () => 34, getQuickIslandBounds: () => bounds, COLLAPSED_WIDTH: 256,
+    getCollapsedHeight: () => 38, getCollapsedWidth: () => 256, getMenuBarHeight: () => 34, getQuickIslandBounds: () => bounds, COLLAPSED_WIDTH: 256,
     app, islandActivities: {}, systemStatus: { getSnapshot: async () => ({}) },
     // This fixture owns only the editor. Two-window coverage is exercised by
     // glass-window-lifecycle.electron.js with real separate BrowserWindows.

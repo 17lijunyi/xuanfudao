@@ -35,6 +35,8 @@
         const root = document.documentElement;
         if (root.dataset.appearance !== snapshot.selectedId) root.dataset.nativeGlass = 'false';
         root.dataset.appearance = snapshot.selectedId;
+        root.dataset.notchWings = snapshot.showNotchWings === false ? 'hidden' : 'visible';
+        root.style.setProperty('--notification-collapsed-width', snapshot.showNotchWings === false ? '200px' : '256px');
         refreshSurface();
       }
       function clearSurface() {

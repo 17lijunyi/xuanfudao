@@ -32,6 +32,7 @@ async function main() {
   let resolveInitialStatus;
   const initialStatus = new Promise((resolve) => { resolveInitialStatus = resolve; });
   const responses = {
+    'appearance:get': { selectedId: 'system-glass-blurred', showNotchWings: true, revision: 0 },
     'ai-tools:get': { ok: true, revision: 0, catalog: require('../ai-tools').CATALOG, state: { selected: 'codex', confirmed: true }, needsSetup: false },
     'window:metrics': { stripHeight: 38, menuBarHeight: 38, collapsedWidth: 256, notchCenterWidth: 200, notchWingWidth: 28 },
     'settings:get': { features: { todo: true, notes: true, links: true, recordings: true, credentials: true, clip: false } },

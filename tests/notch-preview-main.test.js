@@ -133,7 +133,7 @@ test('a quick-island opening reserves the surface until delayed HTML loading fin
     show: () => calls.push(['show']),
     focus: () => calls.push(['focus']),
     showInactive: () => calls.push(['show-inactive']),
-    webContents: { send: (channel) => calls.push(['send', channel]), focus: () => calls.push(['web-focus']) },
+    webContents: { send: (channel, payload) => calls.push(['send', channel, payload]), focus: () => calls.push(['web-focus']) },
   };
   const context = {
     systemUIBlocks: () => false,
@@ -153,6 +153,7 @@ test('a quick-island opening reserves the surface until delayed HTML loading fin
     getWindowDisplay: () => ({ id: 8 }),
     createQuickIslandWindow: () => loading,
     getCollapsedHeight: () => 38,
+    getCollapsedWidth: () => 200,
     getMenuBarHeight: () => 34,
     getQuickIslandBounds: () => ({ x: 1, y: 2, width: 1240, height: 270 }),
     COLLAPSED_WIDTH: 256,
@@ -175,6 +176,8 @@ test('a quick-island opening reserves the surface until delayed HTML loading fin
   const result = await context.resultPromise;
   assert.equal(result.ok, true);
   assert.equal(result.interactive, false);
+  assert.equal(calls.find(([name, channel]) => name === 'send' && channel === 'quick-island:show')[2].collapsedWidth, 200,
+    'the quick-island payload must reflect the saved wings preference');
   assert.deepEqual(calls.find(([name]) => name === 'level'), ['level', true, 'screen-saver', 1]);
   assert.equal(context.quickIslandOpening, 0);
   assert.equal(calls.filter(([name]) => name === 'sync-app-surface').length, 2,
@@ -215,6 +218,7 @@ test('a completion notification can cancel quick-island opening during final sta
     getWindowDisplay: () => ({ id: 8 }),
     createQuickIslandWindow: async () => target,
     getCollapsedHeight: () => 38,
+    getCollapsedWidth: () => 256,
     getMenuBarHeight: () => 34,
     getQuickIslandBounds: () => ({ x: 1, y: 2, width: 1240, height: 270 }),
     COLLAPSED_WIDTH: 256,

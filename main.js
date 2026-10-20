@@ -350,7 +350,7 @@ statusIsland = createIslandStatusWindow({
   alwaysOnTopLevel: 2,
   getBounds: (compact, data) => {
     const display = getWindowDisplay();
-    return getStatusIslandBounds(display, getCollapsedHeight(display), compact, { ...data, collapsedWidth: COLLAPSED_WIDTH });
+    return getStatusIslandBounds(display, getCollapsedHeight(display), compact, { ...data, collapsedWidth: getCollapsedWidth() });
   },
   isAllowed: canShowStatusIsland,
   getAppearance: () => appearanceSettings.getSnapshot(),
@@ -456,7 +456,9 @@ function getNotchPreviewHeight(display) {
   return Math.max(NOTCH_PREVIEW_MIN_HEIGHT, collapsedHeight + NOTCH_PREVIEW_DETAIL_HEIGHT);
 }
 
-function getCollapsedWidth() { return COLLAPSED_WIDTH; }
+function getCollapsedWidth() {
+  return appearanceSettings.getSnapshot().showNotchWings === false ? COLLAPSED_CENTER_WIDTH : COLLAPSED_WIDTH;
+}
 
 // 展开尺寸按当前 Tab 取值；宽度超出屏幕时 clamp 到工作区内。
 // 画布保持物理贴顶，导航留在系统菜单栏下方，输入窗口才能低于原生候选框。
@@ -481,7 +483,7 @@ function getBoundsForMode(mode, display) {
     return getCenteredBounds(width, height, d);
   }
   if (mode === 'preview') {
-    return getCenteredBounds(COLLAPSED_WIDTH, getNotchPreviewHeight(d), d);
+    return getCenteredBounds(getCollapsedWidth(), getNotchPreviewHeight(d), d);
   }
   return getCenteredBounds(getCollapsedWidth(d), getCollapsedHeight(d), d);
 }
@@ -767,7 +769,7 @@ async function showQuickIsland(options = {}) {
     } else {
       target.showInactive();
     }
-    target.webContents.send('quick-island:show', { stripHeight, menuBarHeight: getMenuBarHeight(display), collapsedWidth: COLLAPSED_WIDTH, width: bounds.width, height: bounds.height, interactive: quickIslandInteractive, version: app.getVersion() });
+    target.webContents.send('quick-island:show', { stripHeight, menuBarHeight: getMenuBarHeight(display), collapsedWidth: getCollapsedWidth(), width: bounds.width, height: bounds.height, interactive: quickIslandInteractive, version: app.getVersion() });
     target.webContents.send('island:activities', islandActivities);
     Promise.resolve(systemStatus.getSnapshot()).then((snapshot) => {
       if (!target.isDestroyed()) target.webContents.send('island:system-status', snapshot);
@@ -2086,7 +2088,7 @@ ipcMain.handle('quick-island:return', async (event, motionInput) => {
       target.showInactive();
       target.webContents.send('quick-island:show', {
         stripHeight: getCollapsedHeight(display), menuBarHeight: getMenuBarHeight(display),
-        collapsedWidth: COLLAPSED_WIDTH, width: bounds.width, height: bounds.height,
+        collapsedWidth: getCollapsedWidth(), width: bounds.width, height: bounds.height,
         interactive: false, version: app.getVersion(), handoffId, motion,
       });
       target.webContents.send('island:activities', islandActivities);
@@ -2246,6 +2248,22 @@ ipcMain.handle('appearance:set', async (event, presetId) => {
       appearanceNative.clear(mainWindow);
       appearanceNative.clear(quickIslandWindow);
     }
+    broadcastIsland('appearance:changed', result.snapshot);
+    syncTaskNotificationAppearance(result.snapshot);
+    statusIsland.syncAppearance(result.snapshot);
+  }
+  return result;
+});
+ipcMain.handle('appearance:set-notch-wings', async (event, visible) => {
+  if (!isIslandSender(event)) return { ok: false, error: 'unauthorized' };
+  const result = await appearanceSettings.setNotchWingsVisible(visible);
+  if (result.ok) {
+    // Keep the center alive for hover/click; only change the folded geometry.
+    if (mainWindow && !mainWindow.isDestroyed() && currentMode === 'collapsed') {
+      appearanceNative.clear(mainWindow);
+      mainWindow.setBounds(getBoundsForMode(notchPreviewActive ? 'preview' : 'collapsed'));
+    }
+    broadcastIsland('window:metrics-changed', getLayoutMetrics());
     broadcastIsland('appearance:changed', result.snapshot);
     syncTaskNotificationAppearance(result.snapshot);
     statusIsland.syncAppearance(result.snapshot);
